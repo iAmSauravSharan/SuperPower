@@ -1,11 +1,12 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:superpower/util/config.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
+
+  static const routeName = '/forgot-password';
+
   const ForgotPasswordPage({super.key});
 
   @override
@@ -24,7 +25,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Scaffold(
+      body: SafeArea(child: Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -35,10 +37,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               const SizedBox(height: 15),
               _getEmailField(),
               const SizedBox(height: 15),
-              _getSignUpButton(),
+              _getResetPasswordButton(),
             ],
           ),
         ),
+        ),
+      ),
       ),
     );
   }
@@ -48,43 +52,39 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
       child: TextFormField(
         controller: emailController,
+        cursorColor: Theme.of(context).primaryColor,
         keyboardType: TextInputType.emailAddress,
         textInputAction: TextInputAction.next,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (email) => email != null && EmailValidator.validate(email)
+        validator: (email) => email != null && !EmailValidator.validate(email)
             ? 'Enter a valid email'
             : null,
         decoration: const InputDecoration(
-          prefixIcon: const Icon(Icons.email_rounded),
+          prefixIcon: Icon(Icons.email_rounded),
           hintText: "Enter email",
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15)),
-            gapPadding: 4,
-          ),
         ),
       ),
     );
   }
 
-  Widget _getSignUpButton() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(50),
-          padding: const EdgeInsets.all(2),
-        ),
-        icon: const Icon(
-          Icons.lock_open,
-          size: 27,
-        ),
-        label: const Text(
-          'Reset Password',
-          style: TextStyle(
-            fontSize: 19,
+  Widget _getResetPasswordButton() {
+    return Focus(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
+        child: ElevatedButton.icon(
+          icon: Icon(
+            Icons.lock_open,
+            color: Theme.of(context).primaryColorLight,
+            size: 27,
           ),
+          label: Text(
+            'Reset Password',
+            style: TextStyle(
+              color: Theme.of(context).primaryColorLight,
+            ),
+          ),
+          onPressed: resetPassword,
         ),
-        onPressed: resetPassword,
       ),
     );
   }
@@ -104,7 +104,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       snackbar('Password reset email sent!');
       Navigator.of(context).popUntil((route) => route.isFirst);
     } on FirebaseAuthException catch (e) {
-      snackbar(e.message);
+      snackbar(e.message, isError: true);
       Navigator.of(context).pop();
     }
   }

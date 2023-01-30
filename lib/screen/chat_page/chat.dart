@@ -11,16 +11,22 @@ import 'package:superpower/screen/chat_page/options.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/constants.dart';
 
-class Chat extends StatelessWidget {
-  final String _title;
-  final Color _color;
-  const Chat(this._title, this._color, {super.key});
+class ChatPage extends StatelessWidget {
+  static const routeName = '/chat';
+
+  final String title;
+  final Color color;
+  const ChatPage({
+    required this.title, 
+    required this.color,
+    super.key
+    });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_title),
+        title: Text(title),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -31,7 +37,7 @@ class Chat extends StatelessWidget {
             ),
             const ChatOptionsWidget(),
             ActionsWidget(
-              buttonColor: _color,
+              buttonColor: color,
             ),
           ],
         ),

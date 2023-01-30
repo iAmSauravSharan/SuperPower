@@ -9,6 +9,7 @@ import 'package:superpower/screen/authentication_page/auth.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/logging.dart';
+import 'package:superpower/util/routes.dart';
 import 'package:superpower/util/theme/theme_bloc/theme_bloc.dart';
 import 'package:superpower/util/theme/theme_constants.dart';
 
@@ -24,6 +25,7 @@ Future main() async {
 }
 
 class LaunchApp extends StatelessWidget {
+  static const routeName = '/';
   const LaunchApp({super.key});
 
   @override
@@ -34,15 +36,14 @@ class LaunchApp extends StatelessWidget {
       child: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (BuildContext context, ThemeState state) {
           log.d("Launching App with theme ${state.themeManager.getTheme()}");
-          return MaterialApp(
+          return MaterialApp.router(
             title: "SuperPower⚡",
             debugShowCheckedModeBanner: false,
             scaffoldMessengerKey: messengerKey,
-            navigatorKey: navigatorKey,
             theme: lightTheme,
             darkTheme: darkTheme,
             themeMode: state.themeManager.getTheme(),
-            home: const LaunchWidget(),
+            routerConfig: router,
           );
         },
       ),
@@ -54,8 +55,8 @@ class LaunchWidget extends StatelessWidget {
   const LaunchWidget({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: mainApp(),
+  Widget build(BuildContext context) => const Scaffold(
+        body: HomePage(),
       );
 
   Widget mainApp() => StreamBuilder<User?>(
@@ -64,7 +65,7 @@ class LaunchWidget extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return snackbar("Something went wrong");
+            return snackbar("Something went wrong", isError: true);
           } else if (snapshot.hasData) {
             return const HomePage();
           } else {
@@ -77,7 +78,7 @@ class LaunchWidget extends StatelessWidget {
 Future<void> setup() async {
   WidgetsFlutterBinding.ensureInitialized();
   setUpLogs();
-  log.i("Launching App..");
+  log.i("Launching App...................................");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

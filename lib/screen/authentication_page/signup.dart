@@ -1,20 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:superpower/main.dart';
+import 'package:superpower/screen/authentication_page/auth.dart';
+import 'package:superpower/screen/authentication_page/login.dart';
 import 'package:superpower/util/config.dart';
+import 'package:superpower/util/logging.dart';
+
+final log = Logging("Sign up");
 
 class SignUpPage extends StatefulWidget {
-  final Function() onClickSignIn;
+  static const routeName = '/signup';
 
-  SignUpPage({
+  const SignUpPage({
     Key? key,
-    required this.onClickSignIn,
   }) : super(key: key);
 
   @override
@@ -23,6 +25,7 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -49,14 +52,26 @@ class _SignUpPageState extends State<SignUpPage> {
               _getEmailField(),
               const SizedBox(height: 15),
               _getPasswordField(),
-              const SizedBox(height: 15),
+              const SizedBox(height: 27),
               _getSignUpButton(),
-              const SizedBox(height: 35),
-              _getSignInOption(),
+              const SizedBox(height: 20),
+              _signUpUsing(),
+              // const SizedBox(height: 20),
               // _getGoogleLogin(),
+              const SizedBox(height: 65),
+              _getSignInOption(),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Text _signUpUsing() {
+    return const Text(
+      'or sign up using',
+      style: TextStyle(
+        fontSize: 12,
       ),
     );
   }
@@ -66,15 +81,15 @@ class _SignUpPageState extends State<SignUpPage> {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
       child: TextFormField(
         keyboardType: TextInputType.name,
-        autovalidateMode: AutovalidateMode.always,
+        controller: _nameController,
+        cursorColor: Theme.of(context).primaryColor,
         textInputAction: TextInputAction.next,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (name) =>
+            name != null && name.trim().isEmpty ? 'Name cannot be empty' : null,
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.person),
           hintText: "Enter Name",
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15)),
-            gapPadding: 4,
-          ),
         ),
       ),
     );
@@ -85,6 +100,7 @@ class _SignUpPageState extends State<SignUpPage> {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
       child: TextFormField(
         controller: _emailController,
+        cursorColor: Theme.of(context).primaryColor,
         keyboardType: TextInputType.emailAddress,
         textInputAction: TextInputAction.next,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -92,12 +108,8 @@ class _SignUpPageState extends State<SignUpPage> {
             ? 'Enter a valid email'
             : null,
         decoration: const InputDecoration(
-          prefixIcon: const Icon(Icons.email_rounded),
+          prefixIcon: Icon(Icons.email_rounded),
           hintText: "Enter email",
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15)),
-            gapPadding: 4,
-          ),
         ),
       ),
     );
@@ -109,58 +121,68 @@ class _SignUpPageState extends State<SignUpPage> {
       child: TextFormField(
         obscureText: true,
         controller: _passwordController,
+        cursorColor: Theme.of(context).primaryColor,
         textInputAction: TextInputAction.done,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (value) => (value != null && value.length < 6)
-            ? 'Min 8 characters'
-            : null,
+        validator: (value) =>
+            (value != null && value.length < 6) ? 'Min 8 characters' : null,
         decoration: const InputDecoration(
-          prefixIcon: const Icon(Icons.password),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15)),
-            gapPadding: 4,
-          ),
-          labelText: "Enter Password",
+          prefixIcon: Icon(Icons.password),
+          hintText: "Enter Password",
         ),
       ),
     );
   }
 
   Widget _getSignUpButton() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(50),
-          padding: const EdgeInsets.all(2),
-        ),
-        icon: const Icon(
-          Icons.lock_open,
-          size: 27,
-        ),
-        label: const Text(
-          'Sign Up',
-          style: TextStyle(
-            fontSize: 19,
+    return Focus(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
+        child: ElevatedButton.icon(
+          // style: ElevatedButton.styleFrom(
+          //   minimumSize: const Size.fromHeight(50),
+          //   padding: const EdgeInsets.all(2),
+          // ),
+          icon: Icon(
+            Icons.lock_open,
+            color: Theme.of(context).primaryColorLight,
+            size: 27,
           ),
+          label: Text(
+            'Sign Up',
+            style: TextStyle(
+              color: Theme.of(context).primaryColorLight,
+            ),
+          ),
+          onPressed: signUp,
         ),
-        onPressed: signUp,
       ),
     );
   }
 
   Widget _getSignInOption() => RichText(
-        text: TextSpan(text: 'Already have an account?', children: [
-          TextSpan(
-              recognizer: TapGestureRecognizer()..onTap = widget.onClickSignIn,
-              text: 'Sign In',
-              style: TextStyle(
+        text: TextSpan(
+            text: 'Already have an account? ',
+            style:
+                TextStyle(color: Theme.of(context).primaryColor, fontSize: 17),
+            children: [
+              TextSpan(
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () => {
+                        context
+                            .go('${AuthPage.routeName}${LoginPage.routeName}')
+                      },
+                text: 'Sign In',
+                style: const TextStyle(
                   decoration: TextDecoration.underline,
-                  color: Theme.of(context).colorScheme.onPrimary))
-        ]),
+                  color: Colors.blueAccent,
+                  fontSize: 17,
+                ),
+              ),
+            ]),
       );
 
-  Future signUp() async {
+  void signUp() {
     final isValid = formKey.currentState!.validate();
     if (!isValid) return;
 
@@ -168,17 +190,34 @@ class _SignUpPageState extends State<SignUpPage> {
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          color: Colors.blueAccent,
+        ),
       ),
     );
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+      FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          )
+          .then((value) => {
+                FirebaseFirestore.instance
+                    .collection('UserData')
+                    .doc(value.user?.uid)
+                    .set({
+                  "email": _emailController.text.trim(),
+                  "name": _nameController.text.trim()
+                })
+              })
+          .catchError((onError) => snackbar(onError.message, isError: true));
     } on FirebaseAuthException catch (e) {
-      snackbar(e.message);
+      log.e('Firebase Auth Exception ${e.message}');
+      snackbar(e.message, isError: true);
+    } catch (e) {
+      log.e('Firebase Exception $e');
+      snackbar(e.toString(), isError: true);
     }
 
     navigatorKey.currentState!.popUntil((route) => route.isFirst);

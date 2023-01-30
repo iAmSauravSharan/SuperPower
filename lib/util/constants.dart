@@ -8,6 +8,7 @@ const String TERMS_AND_CONDITIONS = 'Terms of usage';
 const String PRIVACY_POLICY = 'Privacy Policy';
 const String AND = ' and ';
 
+const String version = "0.0.1";
 const String systemTheme = "System";
 const String lightTheme = "Light";
 const String darkTheme = "Dark";
@@ -58,8 +59,7 @@ class Profile {
   static const Color tilesColor = Color.fromARGB(255, 232, 243, 249);
   static const Color iconColor = Colors.black;
   static const bool isTilesDensed = true;
-  static const TextStyle tilesTitleStyle =
-      TextStyle(fontSize: 17);
+  static const TextStyle tilesTitleStyle = TextStyle(fontSize: 17);
 }
 
 enum Intention { qna, image, chat, translator, story, code }
