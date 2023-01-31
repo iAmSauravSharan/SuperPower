@@ -193,6 +193,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  data_connection_checker:
+    dependency: "direct main"
+    description:
+      name: data_connection_checker
+      sha256: "1c8e544acf5ff88785967978b9ebb9f87a57eb1d19a6933b4f3a6f85dbb65163"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.4"
   dbus:
     dependency: transitive
     description:
@@ -352,6 +360,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.1.2"
+  get_it:
+    dependency: "direct main"
+    description:
+      name: get_it
+      sha256: a923c9d0acfee7f3ad9bb65c545e0a1ee0b87fef507ce88f87847d3c8f15be9c
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   go_router:
     dependency: "direct main"
     description:
@@ -870,5 +886,5 @@ packages:
     source: hosted
     version: "6.2.2"
 sdks:
-  dart: ">=2.18.4 <4.0.0"
+  dart: ">=2.18.4 <3.0.0"
   flutter: ">=3.3.0"

@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:superpower/screen/authentication_page/auth.dart';
-import 'package:superpower/screen/chat_page/chat.dart';
+import 'package:superpower/ui/authentication_page/auth.dart';
+import 'package:superpower/ui/chat_page/chat.dart';
 import 'package:superpower/data/repository.dart';
-import 'package:superpower/screen/home_page/option.dart';
+import 'package:superpower/ui/home_page/option.dart';
 import 'package:superpower/main.dart';
-import 'package:superpower/screen/profile_page/profile_page.dart';
+import 'package:superpower/ui/profile_page/profile_page.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/constants.dart';
@@ -101,7 +101,7 @@ class HomeWidget extends StatelessWidget {
 }
 
 class HomeGridWidget extends StatelessWidget {
-  final Repository? _repository = AppState.getRespository();
+  final Repository? _repository = AppState.repository;
 
   HomeGridWidget({Key? key}) : super(key: key);
 

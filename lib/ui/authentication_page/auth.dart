@@ -1,8 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:superpower/screen/authentication_page/login.dart';
-import 'package:superpower/screen/authentication_page/signup.dart';
+import 'package:superpower/ui/authentication_page/login.dart';
+import 'package:superpower/ui/authentication_page/signup.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/logging.dart';
 import 'package:superpower/util/network_connectivity.dart';
@@ -11,6 +10,7 @@ final log = Logging('AuthPage');
 
 class AuthPage extends StatefulWidget {
   static const routeName = '/authentication';
+
   const AuthPage({super.key});
 
   @override

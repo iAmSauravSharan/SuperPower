@@ -173,3 +173,10 @@ Map<int, Color> whiteColor = {
 };
 
 MaterialColor colorCustom = MaterialColor(0xFF880E4F, whiteColor);
+
+const String system = "System";
+const String light = "Light";
+const String dark = "Dark";
+const themes = <String>[system, light, dark];
+
+

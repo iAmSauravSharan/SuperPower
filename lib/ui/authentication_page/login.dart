@@ -4,9 +4,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:superpower/main.dart';
-import 'package:superpower/screen/authentication_page/auth.dart';
-import 'package:superpower/screen/authentication_page/forgot_password.dart';
-import 'package:superpower/screen/authentication_page/signup.dart';
+import 'package:superpower/ui/authentication_page/auth.dart';
+import 'package:superpower/ui/authentication_page/forgot_password.dart';
+import 'package:superpower/ui/authentication_page/signup.dart';
 import 'package:superpower/util/config.dart';
 
 class LoginPage extends StatefulWidget {

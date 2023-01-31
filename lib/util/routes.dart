@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:superpower/screen/authentication_page/auth.dart';
-import 'package:superpower/screen/authentication_page/forgot_password.dart';
-import 'package:superpower/screen/authentication_page/login.dart';
-import 'package:superpower/screen/authentication_page/signup.dart';
-import 'package:superpower/screen/chat_page/chat.dart';
-import 'package:superpower/screen/home_page/home.dart';
-import 'package:superpower/screen/profile_page/profile_page.dart';
+import 'package:superpower/ui/authentication_page/auth.dart';
+import 'package:superpower/ui/authentication_page/forgot_password.dart';
+import 'package:superpower/ui/authentication_page/login.dart';
+import 'package:superpower/ui/authentication_page/signup.dart';
+import 'package:superpower/ui/chat_page/chat.dart';
+import 'package:superpower/ui/home_page/home.dart';
+import 'package:superpower/ui/profile_page/profile_page.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/logging.dart';
 

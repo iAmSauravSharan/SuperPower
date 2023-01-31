@@ -19,7 +19,7 @@ class Remote {
 
   Future<List<Messages>> getGreetings() async {
     List<Messages> messages = [];
-    final response = await http.get(Uri.parse('${Constants.baseUrl}greet'),
+    final response = await http.get(Uri.parse('${baseUrl}greet'),
         headers: getHeaders());
     if (response.statusCode == 200) {
       log.d("in getGreetings - response body -> ${response.body}");
@@ -33,7 +33,7 @@ class Remote {
 
   Future<List<Messages>> sendQuery(Request request) async {
     List<Messages> messages = [];
-    final String url = '${Constants.baseUrl}$_intention';
+    final String url = '${baseUrl}$_intention';
     log.d("in sendQuery() - url is -> $url");
     final response = await http.post(Uri.parse(url),
         headers: getHeaders(), body: jsonEncode(request.toJson()));
@@ -49,7 +49,7 @@ class Remote {
 
   Future<List<Option>> getOptions() async {
     List<Option> optionList = [];
-    final url = "${Constants.baseUrl}option/$_intention";
+    final url = "${baseUrl}option/$_intention";
     log.d("in getOptions() - url is -> $url");
     final response = await http.get(Uri.parse(url), headers: getHeaders());
     log.d("in getOptions() - response is -> ${response.body}");

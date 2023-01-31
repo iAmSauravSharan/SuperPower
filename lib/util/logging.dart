@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:logging/logging.dart';
 
 class Logging {
@@ -23,5 +24,12 @@ class Logging {
 
   void w(String message) {
     log.warning('$name -> $message');
+  }
+
+  static void enableLogging() {
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      debugPrint('${record.level.name}: ${record.time}: ${record.message}');
+    });
   }
 }

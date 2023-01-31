@@ -5,16 +5,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
-import 'package:superpower/screen/authentication_page/auth.dart';
+import 'package:superpower/bloc/theme/theme_bloc/theme_bloc.dart';
+import 'package:superpower/bloc/theme/theme_constants.dart';
+import 'package:superpower/ui/authentication_page/auth.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/logging.dart';
 import 'package:superpower/util/routes.dart';
-import 'package:superpower/util/theme/theme_bloc/theme_bloc.dart';
-import 'package:superpower/util/theme/theme_constants.dart';
 
 import 'firebase_options.dart';
-import 'screen/home_page/home.dart';
+import 'ui/home_page/home.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final log = Logging("Main");
@@ -25,14 +25,13 @@ Future main() async {
 }
 
 class LaunchApp extends StatelessWidget {
-  static const routeName = '/';
   const LaunchApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          ThemeBloc(ThemeState(themeManager: AppState.getThemeManager())),
+          ThemeBloc(ThemeState(themeManager: AppState.themeManager)),
       child: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (BuildContext context, ThemeState state) {
           log.d("Launching App with theme ${state.themeManager.getTheme()}");
@@ -77,17 +76,10 @@ class LaunchWidget extends StatelessWidget {
 
 Future<void> setup() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setUpLogs();
-  log.i("Launching App...................................");
+  Logging.enableLogging();
+  AppState.initialize;
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await AppState.getThemeManager();
-}
-
-void setUpLogs() {
-  Logger.root.level = Level.ALL;
-  Logger.root.onRecord.listen((record) {
-    print('${record.level.name}: ${record.time}: ${record.message}');
-  });
+  log.i("Launching App...................................");
 }

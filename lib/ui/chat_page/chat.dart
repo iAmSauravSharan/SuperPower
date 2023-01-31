@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:superpower/data/model/messages.dart';
 import 'package:superpower/data/repository.dart';
 import 'package:superpower/main.dart';
-import 'package:superpower/screen/chat_page/chat_style.dart';
-import 'package:superpower/screen/chat_page/options.dart';
+import 'package:superpower/ui/chat_page/chat_style.dart';
+import 'package:superpower/ui/chat_page/options.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/constants.dart';
 
@@ -56,7 +56,7 @@ class ConversationsWidget extends StatefulWidget {
 class _ConversationsWidgetState extends State<ConversationsWidget> {
   final List<Messages> _messages = [];
   StreamSubscription? _subscription;
-  final Repository _repository = AppState.getRespository()!;
+  final Repository _repository = AppState.repository!;
   final ScrollController _scrollController = ScrollController();
 
   Future<void> getMessages() async {
@@ -96,16 +96,16 @@ class _ConversationsWidgetState extends State<ConversationsWidget> {
 
   BubbleStyle getMessageStyle(int messageType) {
     switch (messageType) {
-      case Constants.system:
+      case MessageType.system:
         return ChatStyle.system;
 
-      case Constants.user:
+      case MessageType.user:
         return ChatStyle.user;
 
-      case Constants.userImage:
+      case MessageType.userImage:
         return ChatStyle.userImage;
 
-      case Constants.systemImage:
+      case MessageType.systemImage:
         return ChatStyle.systemImage;
 
       default:
@@ -117,7 +117,7 @@ class _ConversationsWidgetState extends State<ConversationsWidget> {
 class ActionsWidget extends StatelessWidget {
   String _enteredMessage = "";
   final Color buttonColor;
-  final Repository _repository = AppState.getRespository()!;
+  final Repository _repository = AppState.repository!;
   final _messageController = TextEditingController();
 
   ActionsWidget({required this.buttonColor, super.key});
@@ -163,7 +163,7 @@ class ActionsWidget extends StatelessWidget {
       onPressed: () {
         if (_enteredMessage.isNotEmpty) {
           _repository.updateMessage(Messages("saurav", "system", "13-12-2012",
-              _enteredMessage, [], Constants.user));
+              _enteredMessage, [], MessageType.user));
           clearEnteredMessage();
         }
       },

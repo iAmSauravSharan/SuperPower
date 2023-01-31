@@ -1,26 +1,25 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:superpower/bloc/theme/theme_bloc/theme_bloc.dart';
+import 'package:superpower/bloc/theme/theme_constants.dart';
+import 'package:superpower/bloc/theme/theme_manager.dart';
 import 'package:superpower/data/preference_manager.dart';
-import 'package:superpower/screen/web_page/web_page.dart';
+import 'package:superpower/ui/web_page/web_page.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
-import 'package:superpower/util/theme/theme_bloc/theme_bloc.dart';
-import 'package:superpower/util/theme/theme_manager.dart';
-
+import 'package:superpower/util/strings.dart';
 import 'package:superpower/util/util.dart';
 
 final log = Logging("Profile Page");
 
 class ProfilePage extends StatelessWidget {
-
   static const routeName = '/profile';
+
   const ProfilePage({super.key});
 
   @override
@@ -45,24 +44,24 @@ class ProfileWidget extends StatefulWidget {
 }
 
 class _ProfileWidgetState extends State<ProfileWidget> {
-  String themeValue = systemTheme;
+  String themeValue = system;
   String name = 'Human';
-  late ThemeManager themeManager = AppState.getThemeManager();
+  late ThemeManager themeManager = AppState.themeManager;
 
   @override
   void initState() {
     log.d('entering into initState()');
     retrieveUsername();
-    PreferanceManager.readData(PrefConstant.themeMode).then((value) {
+    PreferenceManager.readData(PrefConstant.themeMode).then((value) {
       log.d('in initState() got value from pref -> $value');
       if (value != null) {
         setState(() {
           if (value == ThemeMode.system.name) {
-            themeValue = systemTheme;
+            themeValue = system;
           } else if (value == ThemeMode.light.name) {
-            themeValue = lightTheme;
+            themeValue = light;
           } else {
-            themeValue = darkTheme;
+            themeValue = dark;
           }
         });
       }
@@ -161,9 +160,9 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               log.d('theme value chaged');
               setState(() {
                 themeValue = value!;
-                if (themeValue == lightTheme) {
+                if (themeValue == light) {
                   themeManager.setLightMode();
-                } else if (themeValue == darkTheme) {
+                } else if (themeValue == dark) {
                   themeManager.setDarkMode();
                 } else {
                   themeManager.setSystemMode();

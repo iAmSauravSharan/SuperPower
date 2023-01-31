@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PreferanceManager {
+class PreferenceManager {
   static void saveData(String key, dynamic value) async {
     final prefs = await SharedPreferences.getInstance();
     if (value is int) {

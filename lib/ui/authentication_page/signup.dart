@@ -5,8 +5,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:superpower/main.dart';
-import 'package:superpower/screen/authentication_page/auth.dart';
-import 'package:superpower/screen/authentication_page/login.dart';
+import 'package:superpower/ui/authentication_page/auth.dart';
+import 'package:superpower/ui/authentication_page/login.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/logging.dart';
 
