@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 
-const String baseUrl = "http://localhost:8084/";
+const String baseUrl = "http://localhost:8184/";
 
 const String version = "0.0.1";
+
+const String bearerToken = "Bearer Token";
 
 class PrefConstant {
   static const String themeMode = 'themeModePref';

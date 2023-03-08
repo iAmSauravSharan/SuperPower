@@ -208,7 +208,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     .doc(value.user?.uid)
                     .set({
                   "email": _emailController.text.trim(),
-                  "name": _nameController.text.trim()
+                  "name": _nameController.text.trim(),
+                  "role": "User"
                 })
               })
           .catchError((onError) => snackbar(onError.message, isError: true));
@@ -219,7 +220,7 @@ class _SignUpPageState extends State<SignUpPage> {
       log.e('Firebase Exception $e');
       snackbar(e.toString(), isError: true);
     }
-
+    log.d("reached here.............");
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
 }

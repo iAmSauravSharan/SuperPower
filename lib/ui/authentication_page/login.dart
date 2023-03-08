@@ -1,13 +1,21 @@
+import 'dart:html';
+
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
+import 'package:superpower/data/preference_manager.dart';
 import 'package:superpower/main.dart';
 import 'package:superpower/ui/authentication_page/auth.dart';
 import 'package:superpower/ui/authentication_page/forgot_password.dart';
 import 'package:superpower/ui/authentication_page/signup.dart';
 import 'package:superpower/util/config.dart';
+import 'package:superpower/util/constants.dart';
+import 'package:superpower/util/logging.dart';
+
+final log = Logging('LoginPage');
 
 class LoginPage extends StatefulWidget {
   static const routeName = '/login';
@@ -178,6 +186,17 @@ class _LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       snackbar(e.message, isError: true);
     }
-    context.pop();
+    try {
+      var user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        user
+            .getIdToken(true)
+            .then((token) => PreferenceManager.saveData(bearerToken, token));
+      }
+    } on Exception catch (e) {
+      snackbar(e.toString(), isError: true);
+    }
+    log.d("reached here.............");
+    navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
 }
