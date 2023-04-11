@@ -16,11 +16,7 @@ class ChatPage extends StatelessWidget {
 
   final String title;
   final Color color;
-  const ChatPage({
-    required this.title, 
-    required this.color,
-    super.key
-    });
+  const ChatPage({required this.title, required this.color, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,12 +57,16 @@ class _ConversationsWidgetState extends State<ConversationsWidget> {
 
   Future<void> getMessages() async {
     _subscription = _repository.getController().stream.listen((event) {
-      setState(() {
-        _messages.clear();
-        _messages.addAll(event);
-        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 500), curve: Curves.easeOut);
-      });
+      if (this.mounted) {
+        setState(() {
+          _messages.clear();
+          _messages.addAll(event);
+          _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut);
+        });
+      }
     });
     await _repository.getGreetings();
   }

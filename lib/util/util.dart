@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 String getStoreName() {
@@ -20,4 +20,29 @@ String getStoreName() {
     }
     return "App Store";
   }
+}
+
+int getCurrentTimestamp() {
+  return DateTime.now().millisecondsSinceEpoch;
+}
+
+Future<String> getIpAddress() async {
+  for (var interface in await NetworkInterface.list()) {
+    for (var address in interface.addresses) {
+      if (address.type == InternetAddressType.IPv4) {
+        return address.address;
+      }
+    }
+  }
+
+  return '';
+}
+
+String getDeviceType() {
+  if (Platform.isAndroid) return "Android";
+  else if (Platform.isIOS) return "IOS";
+  else if (Platform.isMacOS) return "MacOS";
+  else if (Platform.isWindows) return "Windows";
+  else if (Platform.isLinux) return "Linux";
+  else return "Fuchsia";
 }

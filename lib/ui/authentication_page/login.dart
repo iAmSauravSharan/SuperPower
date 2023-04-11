@@ -1,18 +1,12 @@
-import 'dart:html';
-
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logging/logging.dart';
-import 'package:superpower/data/preference_manager.dart';
 import 'package:superpower/main.dart';
+import 'package:superpower/shared/widgets/page_heading.dart';
 import 'package:superpower/ui/authentication_page/auth.dart';
 import 'package:superpower/ui/authentication_page/forgot_password.dart';
-import 'package:superpower/ui/authentication_page/signup.dart';
-import 'package:superpower/util/config.dart';
-import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
 
 final log = Logging('LoginPage');
@@ -44,30 +38,49 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 15),
-                _getEmailField(),
-                const SizedBox(height: 15),
-                _getPasswordField(),
-                const SizedBox(height: 15),
-                _getLoginButton(),
-                const SizedBox(height: 35),
-                _getForgotOption(),
-                const SizedBox(height: 35),
-                _getRegisterOption(),
-                // _getGoogleLogin(),
-              ],
+        child: Center(
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 500),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Card(
+                elevation: 7,
+                child: Padding(
+                  padding: const EdgeInsets.all(36.0),
+                  child: Form(
+                    key: formKey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _getHeadingField(),
+                          const SizedBox(height: 15),
+                          _getEmailField(),
+                          const SizedBox(height: 15),
+                          _getPasswordField(),
+                          const SizedBox(height: 15),
+                          _getLoginButton(),
+                          const SizedBox(height: 35),
+                          _getForgotOption(),
+                          const SizedBox(height: 35),
+                          _getRegisterOption(),
+                          // _getGoogleLogin(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _getHeadingField() {
+    return const PageHeading(heading: 'Sign in');
   }
 
   Widget _getEmailField() {
@@ -178,24 +191,24 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
 
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-    } on FirebaseAuthException catch (e) {
-      snackbar(e.message, isError: true);
-    }
-    try {
-      var user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        user
-            .getIdToken(true)
-            .then((token) => PreferenceManager.saveData(bearerToken, token));
-      }
-    } on Exception catch (e) {
-      snackbar(e.toString(), isError: true);
-    }
+    // try {
+    //   await FirebaseAuth.instance.signInWithEmailAndPassword(
+    //     email: _emailController.text.trim(),
+    //     password: _passwordController.text.trim(),
+    //   );
+    // } on FirebaseAuthException catch (e) {
+    //   snackbar(e.message, isError: true);
+    // }
+    // try {
+    //   var user = FirebaseAuth.instance.currentUser;
+    //   if (user != null) {
+    //     user
+    //         .getIdToken(true)
+    //         .then((token) => PreferenceManager.saveData(bearerToken, token));
+    //   }
+    // } on Exception catch (e) {
+    //   snackbar(e.toString(), isError: true);
+    // }
     log.d("reached here.............");
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }

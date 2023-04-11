@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -267,9 +267,9 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           'Log out',
           style: Profile.tilesTitleStyle,
         ),
-        onTap: () => FirebaseAuth.instance
-            .signOut()
-            .whenComplete(() => Navigator.of(context).pop()),
+        // onTap: () => FirebaseAuth.instance
+        //     .signOut()
+        //     .whenComplete(() => Navigator.of(context).pop()),
       ),
     );
   }
@@ -342,22 +342,22 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   Future<void> retrieveUsername() async {
     String storedName = name;
     final pattern = RegExp('\\s+');
-    final userEmail = FirebaseAuth.instance.currentUser?.email;
+    final userEmail = '';
     log.d('retrieveUsername userEmail is -> $userEmail');
-    final collection = FirebaseFirestore.instance.collection('UserData');
-    final querySnapshot = await collection.get();
-    for (var queryDocumentSnapshot in querySnapshot.docs) {
-      Map<String, dynamic> data = queryDocumentSnapshot.data();
-      if (data['email'] == userEmail) {
-        storedName = data['name'] ?? name;
-        if (storedName.split(pattern).length > 1) {
-          storedName = storedName.split(pattern)[0];
-        }
-        setState(() {
-          name = storedName.isNotEmpty ? storedName : name;
-        });
-      }
-    }
+    // final collection = FirebaseFirestore.instance.collection('UserData');
+    // final querySnapshot = await collection.get();
+    // for (var queryDocumentSnapshot in querySnapshot.docs) {
+    //   Map<String, dynamic> data = queryDocumentSnapshot.data();
+    //   if (data['email'] == userEmail) {
+    //     storedName = data['name'] ?? name;
+    //     if (storedName.split(pattern).length > 1) {
+    //       storedName = storedName.split(pattern)[0];
+    //     }
+    //     setState(() {
+    //       name = storedName.isNotEmpty ? storedName : name;
+    //     });
+    //   }
+    // }
   }
 
   void sendEmail() {}

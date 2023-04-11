@@ -1,10 +1,8 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:superpower/util/config.dart';
+import 'package:superpower/shared/widgets/page_heading.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
-
   static const routeName = '/forgot-password';
 
   const ForgotPasswordPage({super.key});
@@ -25,24 +23,32 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(child: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 15),
-              _getEmailField(),
-              const SizedBox(height: 15),
-              _getResetPasswordButton(),
-            ],
+    return Container(
+      constraints: const BoxConstraints(minWidth: 200, maxWidth: 500),
+      child: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _getHeadingField(),
+                      const SizedBox(height: 15),
+                      _getEmailField(),
+                      const SizedBox(height: 15),
+                      _getResetPasswordButton(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
-        ),
-      ),
       ),
     );
   }
@@ -98,14 +104,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       ),
     );
 
-    try {
-      await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: emailController.text.trim());
-      snackbar('Password reset email sent!');
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    } on FirebaseAuthException catch (e) {
-      snackbar(e.message, isError: true);
-      Navigator.of(context).pop();
-    }
+    //TODO: send verification code to email and redirect to verify code screen
+    // try {
+    //   await FirebaseAuth.instance
+    //       .sendPasswordResetEmail(email: emailController.text.trim());
+    //   snackbar('Password reset email sent!');
+    //   Navigator.of(context).popUntil((route) => route.isFirst);
+    // } on FirebaseAuthException catch (e) {
+    //   snackbar(e.message, isError: true);
+    //   Navigator.of(context).pop();
+    // }
+  }
+
+  Widget _getHeadingField() {
+    return const PageHeading(heading: 'Forgot Password');
   }
 }

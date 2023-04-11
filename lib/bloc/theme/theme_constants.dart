@@ -55,6 +55,28 @@ final darkTheme = ThemeData(
     dense: true,
     iconColor: Colors.white70,
   ),
+  textTheme: const TextTheme(
+    displayLarge: TextStyle(
+      color: Colors.white,
+      fontSize: 32.0,
+      fontWeight: FontWeight.bold,
+      fontStyle: FontStyle.normal,
+      letterSpacing: 1.0,
+      wordSpacing: 2.0,
+      height: 1.5,
+      fontFamily: 'NotoSerif'
+    ),
+    displayMedium: TextStyle(
+      color: Colors.white,
+      fontSize: 22.0,
+      fontWeight: FontWeight.bold,
+      fontStyle: FontStyle.normal,
+      letterSpacing: 1.0,
+      wordSpacing: 2.0,
+      height: 1.5,
+      fontFamily: 'NotoSerif'
+    ),
+  ),
   appBarTheme: AppBarTheme(
       backgroundColor: Colors.black,
       elevation: 7,
@@ -128,6 +150,28 @@ final lightTheme = ThemeData(
     visualDensity: VisualDensity.comfortable,
     dense: true,
     iconColor: Color.fromARGB(179, 36, 36, 36),
+  ),
+  textTheme: const TextTheme(
+    displayLarge: TextStyle(
+      color: Colors.black,
+      fontSize: 32.0,
+      fontWeight: FontWeight.bold,
+      fontStyle: FontStyle.normal,
+      letterSpacing: 1.0,
+      wordSpacing: 2.0,
+      height: 1.5,
+      fontFamily: 'NotoSerif'
+    ),
+    displayMedium: TextStyle(
+      color: Colors.black,
+      fontSize: 22.0,
+      fontWeight: FontWeight.bold,
+      fontStyle: FontStyle.normal,
+      letterSpacing: 1.0,
+      wordSpacing: 2.0,
+      height: 1.5,
+      fontFamily: 'NotoSerif'
+    ),
   ),
   appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,

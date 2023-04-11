@@ -11,6 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   cupertino_icons: ^1.0.2
   image_picker: ^0.8.6
   fluttertoast: ^8.0.8
@@ -21,8 +22,8 @@ dependencies:
   bubble: ^1.2.1
   http: ^0.13.5
   google_fonts: 2.1.1
-  firebase_auth: ^4.2.5
-  cloud_firestore: ^4.3.1
+  # firebase_auth: ^4.2.5
+  # cloud_firestore: ^4.3.1
   email_validator: ^2.1.17
   cached_network_image: ^3.2.3
   logging: ^1.1.0

@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:superpower/ui/authentication_page/auth.dart';
 import 'package:superpower/ui/chat_page/chat.dart';

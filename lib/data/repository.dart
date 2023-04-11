@@ -1,5 +1,10 @@
 import 'dart:async';
 
+import 'package:superpower/bloc/auth/auth_bloc/model/verify_code.dart';
+import 'package:superpower/bloc/auth/auth_bloc/model/signup.dart';
+import 'package:superpower/bloc/auth/auth_bloc/model/reset_password.dart';
+import 'package:superpower/bloc/auth/auth_bloc/model/login.dart';
+import 'package:superpower/bloc/auth/auth_repository.dart';
 import 'package:superpower/data/model/messages.dart';
 import 'package:superpower/data/remote.dart';
 import 'package:superpower/data/model/options.dart';
@@ -9,7 +14,7 @@ import 'package:superpower/util/logging.dart';
 
 final log = Logging('Repository');
 
-class Repository {
+class Repository implements AuthenticationRepository {
   late final StreamController _controller;
   static Repository? instance;
   String _intention = Intention.qna.name;
@@ -51,4 +56,29 @@ class Repository {
   }
 
   factory Repository() => instance ??= Repository._();
+
+  @override
+  Future<Object> login(Login login) {
+    return _remote.login(login);
+  }
+
+  @override
+  Future<Object> resetPassword(ResetPassword resetPassword) {
+    return _remote.resetPassword(resetPassword);
+  }
+
+  @override
+  Future<Object> sendCode(VerifyCode verifyCode) {
+      return _remote.sendCode(verifyCode);
+  }
+
+  @override
+  Future<Object> signup(Signup signup) {
+    return _remote.signup(signup);
+  }
+
+  @override
+  Future<Object> verifyCode(VerifyCode verifyCode) {
+    return _remote.verifyCode(verifyCode);
+  }
 }

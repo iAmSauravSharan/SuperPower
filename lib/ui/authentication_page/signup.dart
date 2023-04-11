@@ -1,10 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:superpower/main.dart';
+import 'package:superpower/shared/widgets/page_heading.dart';
 import 'package:superpower/ui/authentication_page/auth.dart';
 import 'package:superpower/ui/authentication_page/login.dart';
 import 'package:superpower/util/config.dart';
@@ -39,28 +40,37 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 15),
-              _getNameField(),
-              const SizedBox(height: 15),
-              _getEmailField(),
-              const SizedBox(height: 15),
-              _getPasswordField(),
-              const SizedBox(height: 27),
-              _getSignUpButton(),
-              const SizedBox(height: 20),
-              _signUpUsing(),
-              // const SizedBox(height: 20),
-              // _getGoogleLogin(),
-              const SizedBox(height: 65),
-              _getSignInOption(),
-            ],
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 100, maxWidth: 500),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(36.0),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _getHeadingField(),
+                    const SizedBox(height: 15),
+                    _getNameField(),
+                    const SizedBox(height: 15),
+                    _getEmailField(),
+                    const SizedBox(height: 15),
+                    _getPasswordField(),
+                    const SizedBox(height: 27),
+                    _getSignUpButton(),
+                    const SizedBox(height: 20),
+                    // _signUpUsing(),
+                    // const SizedBox(height: 20),
+                    // _getGoogleLogin(),
+                    const SizedBox(height: 45),
+                    _getSignInOption(),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -74,6 +84,10 @@ class _SignUpPageState extends State<SignUpPage> {
         fontSize: 12,
       ),
     );
+  }
+
+  Widget _getHeadingField() {
+    return const PageHeading(heading: 'Create an account');
   }
 
   Widget _getNameField() {
@@ -144,12 +158,12 @@ class _SignUpPageState extends State<SignUpPage> {
           //   padding: const EdgeInsets.all(2),
           // ),
           icon: Icon(
-            Icons.lock_open,
+            Icons.emoji_events_rounded,
             color: Theme.of(context).primaryColorLight,
             size: 27,
           ),
           label: Text(
-            'Sign Up',
+            'Create my account',
             style: TextStyle(
               color: Theme.of(context).primaryColorLight,
             ),
@@ -196,30 +210,30 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
     );
 
-    try {
-      FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          )
-          .then((value) => {
-                FirebaseFirestore.instance
-                    .collection('UserData')
-                    .doc(value.user?.uid)
-                    .set({
-                  "email": _emailController.text.trim(),
-                  "name": _nameController.text.trim(),
-                  "role": "User"
-                })
-              })
-          .catchError((onError) => snackbar(onError.message, isError: true));
-    } on FirebaseAuthException catch (e) {
-      log.e('Firebase Auth Exception ${e.message}');
-      snackbar(e.message, isError: true);
-    } catch (e) {
-      log.e('Firebase Exception $e');
-      snackbar(e.toString(), isError: true);
-    }
+    // try {
+    //   FirebaseAuth.instance
+    //       .createUserWithEmailAndPassword(
+    //         email: _emailController.text.trim(),
+    //         password: _passwordController.text.trim(),
+    //       )
+    //       .then((value) => {
+    //             FirebaseFirestore.instance
+    //                 .collection('UserData')
+    //                 .doc(value.user?.uid)
+    //                 .set({
+    //               "email": _emailController.text.trim(),
+    //               "name": _nameController.text.trim(),
+    //               "role": "User"
+    //             })
+    //           })
+    //       .catchError((onError) => snackbar(onError.message, isError: true));
+    // } on FirebaseAuthException catch (e) {
+    //   log.e('Firebase Auth Exception ${e.message}');
+    //   snackbar(e.message, isError: true);
+    // } catch (e) {
+    //   log.e('Firebase Exception $e');
+    //   snackbar(e.toString(), isError: true);
+    // }
     log.d("reached here.............");
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }

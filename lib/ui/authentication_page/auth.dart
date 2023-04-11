@@ -1,3 +1,5 @@
+// import 'package:auth_module/login/view/login_page.dart';
+// import 'package:auth_module/signup/view/signup_page.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:superpower/ui/authentication_page/login.dart';

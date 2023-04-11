@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 const String baseUrl = "http://localhost:8184/";
+const String authBaseUrl = "http://localhost:8184/";
 
 const String version = "0.0.1";
 
