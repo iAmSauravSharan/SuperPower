@@ -1,5 +1,16 @@
 import 'dart:io';
+import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:http/http.dart' as http;
+import 'package:superpower/bloc/llm/llm_bloc/model/llm.dart';
+import 'package:superpower/bloc/llm/llm_bloc/model/llm_creativity.dart';
+import 'package:superpower/bloc/llm/llm_bloc/model/llm_data.dart';
+import 'package:superpower/bloc/llm/llm_bloc/model/llm_model.dart';
+import 'package:superpower/util/constants.dart';
+import 'package:superpower/util/logging.dart';
+
+final log = Logging('Util');
 
 String getStoreName() {
   if (kIsWeb) {
@@ -27,22 +38,50 @@ int getCurrentTimestamp() {
 }
 
 Future<String> getIpAddress() async {
-  for (var interface in await NetworkInterface.list()) {
-    for (var address in interface.addresses) {
-      if (address.type == InternetAddressType.IPv4) {
-        return address.address;
-      }
-    }
-  }
-
-  return '';
+  // final response = await http.get(Uri.parse('https://api.ipify.org'));
+  // if (response.statusCode == 200) {
+  //   return response.body;
+  // } else {
+  //   return not_available;
+  // }
+  return not_available;
 }
 
 String getDeviceType() {
-  if (Platform.isAndroid) return "Android";
-  else if (Platform.isIOS) return "IOS";
-  else if (Platform.isMacOS) return "MacOS";
-  else if (Platform.isWindows) return "Windows";
-  else if (Platform.isLinux) return "Linux";
-  else return "Fuchsia";
+  String platform;
+  if (kIsWeb) {
+    platform = 'web';
+  } else {
+    platform = Platform.operatingSystem;
+  }
+  return platform;
+}
+
+List<LLM> getLLMs() {
+  log.d('getLLMs called');
+  final llms = <LLM>[];
+
+  final creativityLevels = <LLMCreativity>[];
+  creativityLevels.add(LLMCreativity("1", "low", true));
+  creativityLevels.add(LLMCreativity("2", "medium", false));
+  creativityLevels.add(LLMCreativity("3", "high", false));
+  creativityLevels.add(LLMCreativity("4", "higher", false));
+  creativityLevels.add(LLMCreativity("5", "highest", false));
+
+  final openAiModels = <LLMModel>[];
+  openAiModels.add(LLMModel("1", "text_da_vinci", creativityLevels, true));
+  openAiModels.add(LLMModel("2", "chat gpt", creativityLevels, false));
+  openAiModels.add(LLMModel("3", "dall.3", creativityLevels, false));
+
+  final claudeModels = <LLMModel>[];
+  claudeModels.add(LLMModel("1", "Claude", creativityLevels, true));
+  claudeModels.add(LLMModel("2", "Claude+", creativityLevels, false));
+
+  final googleModels = <LLMModel>[];
+  googleModels.add(LLMModel("1", "Bard", creativityLevels, true));
+
+  llms.add(LLM("1", "OpenAI", openAiModels, "sk-4*************6T", true));
+  llms.add(LLM("2", "Claude", claudeModels, "pk-4****6T", false));
+  llms.add(LLM("3", "Google", googleModels, null, false));
+  return llms;
 }

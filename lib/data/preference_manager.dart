@@ -1,6 +1,17 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:superpower/util/logging.dart';
+
+final log = Logging('PreferenceManager');
 
 class PreferenceManager {
+  static PreferenceManager? instance;
+
+  PreferenceManager._() {
+    log.d("initializing preference manager..");
+  }
+
+  factory PreferenceManager() => instance ??= PreferenceManager._();
+
   static void saveData(String key, dynamic value) async {
     final prefs = await SharedPreferences.getInstance();
     if (value is int) {

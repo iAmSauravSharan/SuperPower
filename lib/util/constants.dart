@@ -3,14 +3,19 @@
 import 'package:flutter/material.dart';
 
 const String baseUrl = "http://localhost:8184/";
-const String authBaseUrl = "http://localhost:8184/";
+const String authBaseUrl = "https://44kvrs9fch.execute-api.ap-south-1.amazonaws.com/Prod";
 
 const String version = "0.0.1";
+const String none = '';
+const String not_available = 'na';
 
 const String bearerToken = "Bearer Token";
+const String idToken = "idToken";
 
 class PrefConstant {
   static const String themeMode = 'themeModePref';
+  static const String initialLaunch = 'initialLaunchPref';
+  static const String loggedInStatus = 'loggedInStatusPref';
 }
 
 class MessageType {
@@ -60,3 +65,7 @@ enum Intention { qna, image, chat, translator, story, code }
 enum Preference { isAuthenticated }
 
 enum Path { terms_of_usage, privacy_policy }
+
+enum VerifyingCodeFor { user_signup, reset_password }
+
+enum TokenType { Authorization, idToken, accessToken, refreshToken }

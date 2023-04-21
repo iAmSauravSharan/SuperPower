@@ -7,6 +7,8 @@ abstract class AuthenticationEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class LogoutEvent extends AuthenticationEvent {}
+
 class LoginEvent extends AuthenticationEvent {
   final String username;
   final String password;
@@ -21,8 +23,8 @@ class SignupEvent extends AuthenticationEvent {
 }
 
 class SendCodeEvent extends AuthenticationEvent {
-  final String username;
-  const SendCodeEvent(this.username);
+  final String email;
+  const SendCodeEvent(this.email);
 }
 
 class VerifyCodeEvent extends AuthenticationEvent {
@@ -34,5 +36,6 @@ class VerifyCodeEvent extends AuthenticationEvent {
 class ResetPasswordEvent extends AuthenticationEvent {
   final String username;
   final String password;
-  const ResetPasswordEvent(this.username, this.password);
+  final String code;
+  const ResetPasswordEvent(this.username, this.password, this.code);
 }

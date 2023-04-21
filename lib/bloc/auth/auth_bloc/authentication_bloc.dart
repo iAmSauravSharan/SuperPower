@@ -6,6 +6,7 @@ import 'package:superpower/bloc/auth/auth_bloc/model/reset_password.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/signup.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/verify_code.dart';
 import 'package:superpower/bloc/auth/auth_repository.dart';
+import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/util.dart';
 
 part 'authentication_event.dart';
@@ -51,19 +52,19 @@ class AuthenticationBloc
       case SendCodeEvent:
         String ipAddress = await getIpAddress();
         return authRepository.sendCode(VerifyCode(
-            (event as SendCodeEvent).username,
-            '',
-            '',
-            '',
+            not_available,
+            not_available,
+            (event as SendCodeEvent).email,
+            not_available,
             ipAddress,
             getDeviceType()));
       case VerifyCodeEvent:
         String ipAddress = await getIpAddress();
-        return authRepository.verifyCode(VerifyCode(
+        return authRepository.confirmUser(VerifyCode(
             (event as VerifyCodeEvent).username,
             (event).code,
-            '',
-            '',
+            not_available,
+            not_available,
             ipAddress,
             getDeviceType()));
       case ResetPasswordEvent:
@@ -71,8 +72,11 @@ class AuthenticationBloc
         return authRepository.resetPassword(ResetPassword(
             (event as ResetPasswordEvent).username,
             (event).password,
+            (event).code,
             ipAddress,
             getDeviceType()));
+      case LogoutEvent:
+        return authRepository.logout();
       default:
         throw UnsupportedError('Unknown error occured');
     }

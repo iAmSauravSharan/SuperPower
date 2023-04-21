@@ -1,12 +1,9 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:superpower/ui/authentication_page/auth.dart';
-import 'package:superpower/ui/chat_page/chat.dart';
 import 'package:superpower/data/repository.dart';
+import 'package:superpower/ui/chat_page/chat.dart';
 import 'package:superpower/ui/home_page/option.dart';
-import 'package:superpower/main.dart';
 import 'package:superpower/ui/profile_page/profile_page.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
@@ -84,14 +81,13 @@ class HomeWidget extends StatelessWidget {
                 style: TextStyle(
                   color: Theme.of(context).secondaryHeaderColor,
                   fontSize: 21.0,
+                  wordSpacing: 4,
+                  letterSpacing: 2,
                 ),
               ),
-              const TextSpan(
+              TextSpan(
                 text: "Superpower⚡",
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.displayLarge
               ),
             ],
           ),

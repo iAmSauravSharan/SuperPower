@@ -12,10 +12,9 @@ class VerifyCode {
   String getUsername() => _username;
 
   Map<String, dynamic> toJson() => {
-        'username': _username,
+        'username': _username.trim(),
         'code': _code,
-        'email': _email,
-        'phone': _phone,
+        'email': _email.trim(),
         'ipAddress': _ipAddress,
         'device': _device
       };

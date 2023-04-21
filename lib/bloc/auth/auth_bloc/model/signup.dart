@@ -1,3 +1,7 @@
+
+
+import 'package:superpower/util/constants.dart';
+
 class Signup {
   final String _username;
   final String _email;
@@ -12,8 +16,8 @@ class Signup {
   String getUsername() => _username;
 
   Map<String, dynamic> toJson() => {
-        'username': _username,
-        'email': _email,
+        'email': _email.trim(),
+        'username': _username.trim(),
         'password': _password,
         'timestamp': _timestamp,
         'ipAddress': _ipAddress,

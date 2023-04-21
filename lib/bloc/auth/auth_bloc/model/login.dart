@@ -11,7 +11,7 @@ class Login {
   String getUsername() => _username;
 
   Map<String, dynamic> toJson() => {
-        'username': _username,
+        'email': _username.trim(),
         'password': _password,
         'timestamp': _timestamp,
         'ipAddress': _ipAddress,

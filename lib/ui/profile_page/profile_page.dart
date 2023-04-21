@@ -1,12 +1,15 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:superpower/bloc/auth/auth_bloc/authentication_bloc.dart';
 import 'package:superpower/bloc/theme/theme_bloc/theme_bloc.dart';
 import 'package:superpower/bloc/theme/theme_constants.dart';
 import 'package:superpower/bloc/theme/theme_manager.dart';
+import 'package:superpower/bloc/user/user_bloc/user_bloc.dart';
 import 'package:superpower/data/preference_manager.dart';
+import 'package:superpower/ui/home_page/home.dart';
+import 'package:superpower/ui/settings/settings_page.dart';
 import 'package:superpower/ui/web_page/web_page.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
@@ -47,6 +50,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   String themeValue = system;
   String name = 'Human';
   late ThemeManager themeManager = AppState.themeManager;
+  final _authentication = AppState.authenticationBloc;
+  final _userRepository = AppState.userBloc;
 
   @override
   void initState() {
@@ -85,6 +90,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           const SizedBox(height: 20),
           rechargeCredit(),
           const SizedBox(height: 2),
+          appSettings(),
+          const SizedBox(height: 2),
           selectTheme(),
           const SizedBox(height: 2),
           rateApp(),
@@ -108,10 +115,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   Widget username() {
     return Text(
       'Hi, $name 👋',
-      style: const TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-      ),
+      style: Theme.of(context).textTheme.displayMedium,
     );
   }
 
@@ -132,6 +136,24 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         onTap: () => showPointsBottomSheet(),
+      ),
+    );
+  }
+
+  Widget appSettings() {
+    return Focus(
+      child: ListTile(
+        title: const Text(
+          'App Settings',
+          style: Profile.tilesTitleStyle,
+        ),
+        leading: const Icon(
+          Icons.settings_suggest_rounded,
+        ),
+        dense: Profile.isTilesDensed,
+        subtitle: const Text('update access keys, model and more'),
+        trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+        onTap: () => {GoRouter.of(context).go(SettingPage.routeName)},
       ),
     );
   }
@@ -257,19 +279,22 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   Widget logout() {
     return Focus(
       child: ListTile(
-        tileColor: Colors.red.shade100,
+        tileColor: const Color.fromARGB(255, 245, 57, 76),
         leading: const Icon(
           Icons.logout_rounded,
-          color: Colors.red,
+          color: Color.fromARGB(255, 252, 237, 236),
         ),
         dense: Profile.isTilesDensed,
-        title: const Text(
+        title: Text(
           'Log out',
-          style: Profile.tilesTitleStyle,
+          style: TextStyle(
+            fontSize: 17,
+            color: Theme.of(context).primaryColorLight,
+          ),
         ),
-        // onTap: () => FirebaseAuth.instance
-        //     .signOut()
-        //     .whenComplete(() => Navigator.of(context).pop()),
+        onTap: () => _authentication.authenticate(LogoutEvent()).whenComplete(
+            () => GoRouter.of(context)
+                .pop((route) => route.settings.name == HomePage.routeName)),
       ),
     );
   }
@@ -340,24 +365,12 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   }
 
   Future<void> retrieveUsername() async {
-    String storedName = name;
-    final pattern = RegExp('\\s+');
-    final userEmail = '';
-    log.d('retrieveUsername userEmail is -> $userEmail');
-    // final collection = FirebaseFirestore.instance.collection('UserData');
-    // final querySnapshot = await collection.get();
-    // for (var queryDocumentSnapshot in querySnapshot.docs) {
-    //   Map<String, dynamic> data = queryDocumentSnapshot.data();
-    //   if (data['email'] == userEmail) {
-    //     storedName = data['name'] ?? name;
-    //     if (storedName.split(pattern).length > 1) {
-    //       storedName = storedName.split(pattern)[0];
-    //     }
-    //     setState(() {
-    //       name = storedName.isNotEmpty ? storedName : name;
-    //     });
-    //   }
-    // }
+    _userRepository.loadUser(const GetUserEvent()).then((user) => {
+          if (user.getUsername().isNotEmpty)
+            {
+              setState(() => name = user.getUsername()),
+            }
+        });
   }
 
   void sendEmail() {}

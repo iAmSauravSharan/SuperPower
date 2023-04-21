@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:superpower/data/preference_manager.dart';
+import 'package:superpower/util/constants.dart';
 
 const double homeIconSize = 29.0;
 const Color homeIconColor = Color.fromARGB(255, 249, 246, 246);
@@ -33,7 +35,13 @@ snackbar(
     ..showSnackBar(snackBar);
 }
 
-bool isLoggedIn() => false;
+Future<bool> isLoggedIn() async {
+  try {
+    return await PreferenceManager.readData(PrefConstant.loggedInStatus);
+  } catch (e) {
+    return false;
+  }
+}
 
 bool isUserPicAvailable() => false;
 
