@@ -6,10 +6,12 @@ import 'package:superpower/bloc/auth/auth_bloc/authentication_bloc.dart';
 import 'package:superpower/bloc/theme/theme_bloc/theme_bloc.dart';
 import 'package:superpower/bloc/theme/theme_constants.dart';
 import 'package:superpower/bloc/theme/theme_manager.dart';
+import 'package:superpower/bloc/user/user_bloc/model/user.dart';
+import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
 import 'package:superpower/bloc/user/user_bloc/user_bloc.dart';
-import 'package:superpower/data/preference_manager.dart';
+import 'package:superpower/data/source/cache/preference_manager.dart';
 import 'package:superpower/ui/home_page/home.dart';
-import 'package:superpower/ui/settings/settings_page.dart';
+import 'package:superpower/ui/settings_page/settings_page.dart';
 import 'package:superpower/ui/web_page/web_page.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
@@ -49,6 +51,7 @@ class ProfileWidget extends StatefulWidget {
 class _ProfileWidgetState extends State<ProfileWidget> {
   String themeValue = system;
   String name = 'Human';
+  UserPreference _userPreference = UserPreference();
   late ThemeManager themeManager = AppState.themeManager;
   final _authentication = AppState.authenticationBloc;
   final _userRepository = AppState.userBloc;
@@ -56,21 +59,22 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   @override
   void initState() {
     log.d('entering into initState()');
+    retrieveUserPreference();
     retrieveUsername();
-    PreferenceManager.readData(PrefConstant.themeMode).then((value) {
-      log.d('in initState() got value from pref -> $value');
-      if (value != null) {
-        setState(() {
-          if (value == ThemeMode.system.name) {
-            themeValue = system;
-          } else if (value == ThemeMode.light.name) {
-            themeValue = light;
-          } else {
-            themeValue = dark;
-          }
-        });
-      }
-    });
+    // PreferenceManager.readData(PrefConstant.themeMode).then((value) {
+    //   log.d('in initState() got value from pref -> $value');
+    //   if (value != null) {
+    //     setState(() {
+    //       if (value == ThemeMode.system.name) {
+    //         themeValue = system;
+    //       } else if (value == ThemeMode.light.name) {
+    //         themeValue = light;
+    //       } else {
+    //         themeValue = dark;
+    //       }
+    //     });
+    //   }
+    // });
     super.initState();
     log.d('init state done');
   }
@@ -131,8 +135,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         ),
         dense: Profile.isTilesDensed,
         subtitle: const Text('click to add credit points'),
-        trailing: const Text(
-          '10 credits',
+        trailing: Text(
+          '${_userPreference.getAvailableCredits()} credits',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         onTap: () => showPointsBottomSheet(),
@@ -169,7 +173,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           child: DropdownButton(
             elevation: 5,
             underline: null,
-            value: themeValue,
+            value: _userPreference.getAppTheme(),
             alignment: Alignment.center,
             icon: const Icon(Icons.keyboard_arrow_down_rounded),
             items: themes.map((String items) {
@@ -189,6 +193,10 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 } else {
                   themeManager.setSystemMode();
                 }
+                _userPreference = UserPreference(
+                    themeValue, _userPreference.getAvailableCredits());
+                _userRepository
+                    .loadUser(UpdateUserPreferenceEvent(_userPreference));
                 BlocProvider.of<ThemeBloc>(context).add(
                   ThemeChanged(themeMode: themeManager.getTheme()),
                 );
@@ -366,11 +374,25 @@ class _ProfileWidgetState extends State<ProfileWidget> {
 
   Future<void> retrieveUsername() async {
     _userRepository.loadUser(const GetUserEvent()).then((user) => {
-          if (user.getUsername().isNotEmpty)
+          if ((user as User).getUsername().isNotEmpty)
             {
               setState(() => name = user.getUsername()),
             }
         });
+  }
+
+  Future<void> retrieveUserPreference() async {
+    await _userRepository
+        .loadUser(const GetUserPreferenceEvent())
+        .then((user) => {
+              if (user as UserPreference != null)
+                {
+                  setState(() => {
+                        _userPreference = user,
+                        themeValue = _userPreference.getAppTheme()
+                      }),
+                }
+            });
   }
 
   void sendEmail() {}

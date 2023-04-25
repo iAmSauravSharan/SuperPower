@@ -1,14 +1,15 @@
 import 'package:superpower/bloc/llm/llm_bloc/model/llm.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm_data.dart';
+import 'package:superpower/bloc/llm/llm_bloc/model/user_llm_preference.dart';
 
 abstract class LLMRepository {
-  Future<LLM> getUserLLMPreference();
+  Future<UserLLMPreference> getUserLLMPreference();
 
   Future<Object> updateVendor(String vendor);
   Future<Object> updateModel(String model);
-  Future<Object> updateCretivityLevel(String creativityLevel);
-  Future<Object> updateAccessKey(String accessKey);
+  Future<Object> updateCreativityLevel(String creativityLevel);
+  Future<Object> updateAccessKey(Map<String, String> accessKeys);
 
   Future<List<LLM>> getLLMs();
-  // Future<String> getAccessKey();
+  Future<Object> updateUserLLMPreference();
 }

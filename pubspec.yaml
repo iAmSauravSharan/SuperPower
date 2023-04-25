@@ -21,6 +21,8 @@ dependencies:
   provider: ^6.0.2
   bubble: ^1.2.1
   http: ^0.13.5
+  http_interceptor: ^1.0.1
+  flutter_native_splash: ^2.2.19
   google_fonts: 2.1.1
   lottie: ^2.3.2
   email_validator: ^2.1.17
@@ -50,3 +52,6 @@ flutter:
         - asset: fonts/NotoSerif_Regular.ttf
 
   uses-material-design: true
+
+flutter_native_splash:
+  color: '#42a5f5'

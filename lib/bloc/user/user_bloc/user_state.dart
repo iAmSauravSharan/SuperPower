@@ -10,7 +10,7 @@ abstract class UserState extends Equatable {
 class UserLoading extends UserState {}
 
 class UserLoaded extends UserState {
-  final User data;
+  final Object data;
   const UserLoaded(this.data);
 }
 

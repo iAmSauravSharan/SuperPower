@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:superpower/bloc/llm/llm_bloc/llm_bloc.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm_creativity.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm_model.dart';
+import 'package:superpower/bloc/llm/llm_bloc/model/user_llm_preference.dart';
+import 'package:superpower/shared/widgets/page_loading.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
-import 'package:superpower/util/util.dart';
 
 final log = Logging("App Settings");
 
@@ -25,15 +27,14 @@ class SettingPage extends StatelessWidget {
         appBar: AppBar(
           title: const Text('App Settings'),
         ),
-        body: SettingWidget(),
+        body: const SettingWidget(),
       ),
     );
   }
 }
 
 class SettingWidget extends StatefulWidget {
-  SettingWidget({super.key});
-  final List<LLM> llms = getLLMs();
+  const SettingWidget({super.key});
 
   @override
   State<SettingWidget> createState() => _SettingWidgetState();
@@ -41,52 +42,83 @@ class SettingWidget extends StatefulWidget {
 
 class _SettingWidgetState extends State<SettingWidget> {
   final _llmBloc = AppState.llmBloc;
-  late final List<LLM> _llms = widget.llms;
+  late final List<LLM> _llms;
   late LLM _llm;
   late LLMModel _llmModel;
   late LLMCreativity _modelCreativity;
-  late String _accessKey;
-  int selectedVendor = -1;
+  String _accessKey = "";
+  late UserLLMPreference _userLLMPreference;
+  bool dataFetched = false;
 
   @override
   void initState() {
     super.initState();
     log.d('in init state');
+    syncLLMWithUserPreference();
+    log.d('finishing init state');
+  }
+
+  void syncLLMWithUserPreference() async {
+    // if (!dataFetched) {
+    await _llmBloc
+        .update(const GetLLMsEvent())
+        .then((value) => _llms = value as List<LLM>);
+    await _llmBloc
+        .update(const GetUserLLMPreferenceEvent())
+        .then((value) => _userLLMPreference = value as UserLLMPreference);
+    log.d('user preference has ${_userLLMPreference.getModel()}');
+    dataFetched = true;
+    // }
     setState(() {
       log.d('in init set state');
-      _llm =
-          _llms.firstWhere((llm) => llm.isSelected(), orElse: () => _llms[0]);
-      _llmModel = _llm.getModel().firstWhere((model) => model.isSelected(),
+      _llm = _llms.firstWhere(
+          (llm) => (llm.getId() == _userLLMPreference.getVendor()),
+          orElse: () => _llms[0]);
+      _llm.updateSelectionStatus(true);
+      _llmModel = _llm.getModel().firstWhere(
+          (model) => (model.getId() == _userLLMPreference.getModel()),
           orElse: () => _llm.getModel()[0]);
+      _llmModel.updateSelectionStatus(true);
       _modelCreativity = _llmModel.getCreativityLevels().firstWhere(
-          (creativityLevel) => creativityLevel.isSelected(),
+          (creativityLevel) => (creativityLevel.getId() ==
+              _userLLMPreference.getCreativityLevel()),
           orElse: () => _llmModel.getCreativityLevels()[0]);
-      _accessKey = _llm.getAccessKey();
+      _modelCreativity.updateSelectionStatus(true);
+      if (_userLLMPreference.getAccessKey() != null &&
+          _userLLMPreference
+              .getAccessKey()
+              .containsKey(_userLLMPreference.getVendor())) {
+        _accessKey =
+            _userLLMPreference.getAccessKey()[_userLLMPreference.getVendor()]!;
+      }
     });
-    log.d('finishing init state');
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _updateVendor(),
-          const SizedBox(height: 2),
-          _updateModel(),
-          const SizedBox(height: 2),
-          _updateCreativityLevel(),
-          const SizedBox(height: 2),
-          _accessKeyText(),
-        ],
-      ),
-    );
+    return !dataFetched
+        ? const PageLoading()
+        : SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _updateVendor(),
+                const SizedBox(height: 2),
+                _updateModel(),
+                const SizedBox(height: 2),
+                _updateCreativityLevel(),
+                const SizedBox(height: 2),
+                _accessKeyText(context),
+                const SizedBox(height: 61),
+                _saveButton(),
+              ],
+            ),
+          );
   }
 
   Widget _updateVendor() {
-    log.d('in update vendor');
+    log.d('in update vendor with ${_llm.toJson().toString()}');
     return ListTile(
       leading: const Icon(
         Icons.villa_rounded,
@@ -113,15 +145,26 @@ class _SettingWidgetState extends State<SettingWidget> {
                   break;
                 }
               }
+              String id = "1";
               for (var llm in _llms) {
                 if (llm.getVendor() == value) {
                   llm.updateSelectionStatus(true);
                   _llm = llm;
+                  id = llm.getId();
+                  _llm.getModel()[0].updateSelectionStatus(true);
+                  _llm
+                      .getModel()[0]
+                      .getCreativityLevels()[0]
+                      .updateSelectionStatus(true);
                   break;
                 }
               }
-              _accessKey = _llm.getAccessKey();
-              _llmBloc.update(UpdateVendorEvent(value as String));
+              _llmBloc.update(UpdateVendorEvent(id));
+              _llmBloc.update(const UpdateModelEvent("1"));
+              _llmBloc.update(const UpdateCreativityLevelEvent("1"));
+              _accessKey = _userLLMPreference.getAccessKey().containsKey(id)
+                  ? _userLLMPreference.getAccessKey()[id]!
+                  : "";
             });
           },
         ),
@@ -135,7 +178,7 @@ class _SettingWidgetState extends State<SettingWidget> {
   }
 
   Widget _updateModel() {
-    log.d('in update model');
+    log.d('in update model with ${_llm.getModel().toString()}');
     return ListTile(
       leading: const Icon(
         Icons.model_training_rounded,
@@ -151,14 +194,13 @@ class _SettingWidgetState extends State<SettingWidget> {
           alignment: Alignment.center,
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
           items: _llm.getModel().map((LLMModel item) {
-            log.d('--${item..getName()}');
             return DropdownMenuItem(
               value: item.getName(),
               child: Text(item.getName()),
             );
           }).toList(),
           onChanged: (value) {
-            log.d('model updated');
+            log.d('model updated..');
             setState(() {
               for (var model in _llm.getModel()) {
                 if (model.isSelected()) {
@@ -166,13 +208,17 @@ class _SettingWidgetState extends State<SettingWidget> {
                   break;
                 }
               }
+              String id = "1";
               for (var model in _llm.getModel()) {
                 if (model.getName() == value) {
                   model.updateSelectionStatus(true);
+                  id = model.getId();
                   _llmModel = model;
+                  break;
                 }
               }
-              _llmBloc.update(UpdateModelEvent(value as String));
+              _llmBloc.update(UpdateModelEvent(id));
+              _llmBloc.update(const UpdateCreativityLevelEvent("1"));
             });
           },
         ),
@@ -213,14 +259,16 @@ class _SettingWidgetState extends State<SettingWidget> {
                   break;
                 }
               }
+              String id = "1";
               for (var creativityLevel in _llmModel.getCreativityLevels()) {
                 if (creativityLevel.getName() == value) {
                   creativityLevel.updateSelectionStatus(true);
                   _modelCreativity = creativityLevel;
+                  id = creativityLevel.getId();
                   break;
                 }
               }
-              _llmBloc.update(UpdateCreativityLevelEvent(value as String));
+              _llmBloc.update(UpdateCreativityLevelEvent(id));
             });
           },
         ),
@@ -233,15 +281,15 @@ class _SettingWidgetState extends State<SettingWidget> {
     );
   }
 
-  Widget _accessKeyText() {
+  Widget _accessKeyText(BuildContext context) {
+    log.d('access key text $_accessKey');
     return ListTile(
       leading: const Icon(
         Icons.key_rounded,
       ),
-      trailing: 
-          Text(
-            (_accessKey.isNotEmpty ? _accessKey : "No key added"),
-          ),
+      trailing: Text(
+        (_accessKey.isNotEmpty ? _accessKey : "No key added"),
+      ),
       subtitle: const Text('click to add access key'),
       title: const Text(
         'Your access key',
@@ -252,7 +300,7 @@ class _SettingWidgetState extends State<SettingWidget> {
     );
   }
 
-  static Route<Object?> _showAddAccessKeyDialog(
+  Route<Object?> _showAddAccessKeyDialog(
       BuildContext context, Object? arguments) {
     final accessKeyController = TextEditingController();
     return DialogRoute<void>(
@@ -293,8 +341,13 @@ class _SettingWidgetState extends State<SettingWidget> {
                     snackbar('Access key can not be empty', isError: true);
                     return;
                   }
-                  (AppState.llmBloc)
-                      .update(UpdateAccessKeyEvent(accessKeyController.text));
+                  Map<String, String> keys = <String, String>{};
+                  keys[_llm.getId()] = accessKeyController.text;
+                  (AppState.llmBloc).update(UpdateAccessKeyEvent(keys));
+                  setState(() {
+                    _accessKey = accessKeyController.text;
+                    _llm.setAccessKey(_accessKey);
+                  });
                   Navigator.of(context).pop(true);
                 },
                 child: const Text("Add"),
@@ -304,5 +357,41 @@ class _SettingWidgetState extends State<SettingWidget> {
         );
       },
     );
+  }
+
+  Widget _saveButton() {
+    return Focus(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
+        child: ElevatedButton(
+          onPressed: savePreference,
+          child: const Text(
+            'Save Preference',
+          ),
+        ),
+      ),
+    );
+  }
+
+  void savePreference() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const PageLoading(),
+    );
+
+    _llmBloc
+        .update(const UpdateUserLLMPreferenceEvent())
+        .then((value) => {
+              log.d("caught success............."),
+              Navigator.of(context).pop(),
+              GoRouter.of(context).pop(),
+            })
+        .catchError((error) => {
+              log.d("caught error.............$error"),
+              Navigator.of(context).pop()
+            });
+
+    log.d("reached here.............");
   }
 }

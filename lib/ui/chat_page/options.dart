@@ -1,6 +1,6 @@
 import 'package:bubble/bubble.dart';
 import 'package:superpower/ui/chat_page/chat_style.dart';
-import 'package:superpower/data/repository.dart';
+import 'package:superpower/data/data_repository.dart';
 import 'package:superpower/main.dart';
 import 'package:superpower/data/model/messages.dart';
 import 'package:superpower/data/model/options.dart';
@@ -17,7 +17,7 @@ class ChatOptionsWidget extends StatefulWidget {
 }
 
 class _ChatOptionsWidgetState extends State<ChatOptionsWidget> {
-  final Repository? _repository = AppState.repository;
+  final DataRepository? _repository = AppState.repository;
 
   List<Option> _options = [];
 

@@ -2,7 +2,7 @@
 // import 'package:auth_module/signup/view/signup_page.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:superpower/data/repository.dart';
+import 'package:superpower/data/data_repository.dart';
 import 'package:superpower/ui/authentication_page/login_page.dart';
 import 'package:superpower/ui/authentication_page/signup_page.dart';
 import 'package:superpower/util/app_state.dart';

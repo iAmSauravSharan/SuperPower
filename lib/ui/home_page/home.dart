@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:superpower/data/repository.dart';
+import 'package:superpower/shared/widgets/page_loading.dart';
 import 'package:superpower/ui/chat_page/chat.dart';
 import 'package:superpower/ui/home_page/option.dart';
 import 'package:superpower/ui/profile_page/profile_page.dart';
@@ -12,19 +11,41 @@ import 'package:superpower/util/logging.dart';
 
 final log = Logging('HomePage');
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
-
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
   static const routeName = '/home';
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool isDataFetched = true;
+  final _repository = AppState.repository;
+
+  @override
+  void initState() {
+    super.initState();
+    _repository.isInitialAppLaunch().then((status) => {
+          setState(() => {isDataFetched = !status, loadInitialData()})
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) => Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: const HomeWidget(),
+        body: isDataFetched ? const HomeWidget() : const PageLoading(),
       ),
     );
+  }
+
+  void loadInitialData() async {
+    await _repository.loadInitialData();
+    setState(() {
+      isDataFetched = true;
+    });
   }
 }
 
@@ -86,9 +107,8 @@ class HomeWidget extends StatelessWidget {
                 ),
               ),
               TextSpan(
-                text: "Superpower⚡",
-                style: Theme.of(context).textTheme.displayLarge
-              ),
+                  text: "Superpower⚡",
+                  style: Theme.of(context).textTheme.displayLarge),
             ],
           ),
         ),
@@ -98,7 +118,7 @@ class HomeWidget extends StatelessWidget {
 }
 
 class HomeGridWidget extends StatelessWidget {
-  final Repository? _repository = AppState.repository;
+  final _repository = AppState.repository;
 
   HomeGridWidget({Key? key}) : super(key: key);
 

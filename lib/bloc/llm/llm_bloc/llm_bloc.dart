@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm_error.dart';
+import 'package:superpower/bloc/llm/llm_bloc/model/user_llm_preference.dart';
 import 'package:superpower/bloc/llm/llm_repository.dart';
 
 part 'llm_event.dart';
@@ -25,22 +26,22 @@ class LLMBloc extends Bloc<LLMEvent, LLMState> {
 
   Future<Object> update(LLMEvent event) async {
     switch (event.runtimeType) {
-      case GetLLMPreferenceEvent:
+      case GetUserLLMPreferenceEvent:
         return llmRepository.getUserLLMPreference();
       case GetLLMsEvent:
         return llmRepository.getLLMs();
-      // case GetAccessKeyEvent:
-      //   return llmRepository.getAccessKey();
+      case UpdateUserLLMPreferenceEvent:
+        return llmRepository.updateUserLLMPreference();
       case UpdateVendorEvent:
         return llmRepository.updateVendor((event as UpdateVendorEvent).vendor);
       case UpdateModelEvent:
         return llmRepository.updateModel((event as UpdateModelEvent).model);
       case UpdateCreativityLevelEvent:
-        return llmRepository.updateCretivityLevel(
+        return llmRepository.updateCreativityLevel(
             (event as UpdateCreativityLevelEvent).creativityLevel);
       case UpdateAccessKeyEvent:
         return llmRepository
-            .updateAccessKey((event as UpdateAccessKeyEvent).accessKey);
+            .updateAccessKey((event as UpdateAccessKeyEvent).accessKeys);
       default:
         throw LLMError('Unknown error occured');
     }

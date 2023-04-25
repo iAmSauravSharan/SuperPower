@@ -57,30 +57,30 @@ String getDeviceType() {
   return platform;
 }
 
-List<LLM> getLLMs() {
+List<LLM> getMockLLMs() {
   log.d('getLLMs called');
   final llms = <LLM>[];
 
   final creativityLevels = <LLMCreativity>[];
-  creativityLevels.add(LLMCreativity("1", "low", true));
+  creativityLevels.add(LLMCreativity("1", "low", false));
   creativityLevels.add(LLMCreativity("2", "medium", false));
   creativityLevels.add(LLMCreativity("3", "high", false));
   creativityLevels.add(LLMCreativity("4", "higher", false));
   creativityLevels.add(LLMCreativity("5", "highest", false));
 
   final openAiModels = <LLMModel>[];
-  openAiModels.add(LLMModel("1", "text_da_vinci", creativityLevels, true));
+  openAiModels.add(LLMModel("1", "text_da_vinci", creativityLevels, false));
   openAiModels.add(LLMModel("2", "chat gpt", creativityLevels, false));
   openAiModels.add(LLMModel("3", "dall.3", creativityLevels, false));
 
   final claudeModels = <LLMModel>[];
-  claudeModels.add(LLMModel("1", "Claude", creativityLevels, true));
+  claudeModels.add(LLMModel("1", "Claude", creativityLevels, false));
   claudeModels.add(LLMModel("2", "Claude+", creativityLevels, false));
 
   final googleModels = <LLMModel>[];
-  googleModels.add(LLMModel("1", "Bard", creativityLevels, true));
+  googleModels.add(LLMModel("1", "Bard", creativityLevels, false));
 
-  llms.add(LLM("1", "OpenAI", openAiModels, "sk-4*************6T", true));
+  llms.add(LLM("1", "OpenAI", openAiModels, "sk-4*************6T", false));
   llms.add(LLM("2", "Claude", claudeModels, "pk-4****6T", false));
   llms.add(LLM("3", "Google", googleModels, null, false));
   return llms;

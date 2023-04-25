@@ -11,4 +11,11 @@ class GetUserEvent extends UserEvent {
   const GetUserEvent();
 }
 
+class GetUserPreferenceEvent extends UserEvent {
+  const GetUserPreferenceEvent();
+}
 
+class UpdateUserPreferenceEvent extends UserEvent {
+  final UserPreference _userPreference;
+  const UpdateUserPreferenceEvent(this._userPreference);
+}

@@ -220,7 +220,7 @@ class _LoginPageState extends State<LoginPage> {
             LoginEvent(_emailController.text, _passwordController.text))
         .then((value) => {
               saveTokens(value),
-              _repository.setLoggedinStatus(true),
+              _repository.setLoggedInStatus(true),
               Navigator.of(context).pop(),
               GoRouter.of(context)
                   .pop((route) => route.settings.name == HomePage.routeName),

@@ -15,7 +15,9 @@ Future main() async {
 
 Future<void> setup() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Logging.enableLogging();
+  if (!AppState.isProd) {
+    Logging.enableLogging();
+  }
   AppState.initialize;
   log.i("Launching App...................................");
 }

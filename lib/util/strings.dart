@@ -1,4 +1,8 @@
 
+const String APP_TITLE = "SuperPower⚡";
+const String SUCCESS = "Success";
+
+
 
 const String TERMS_AND_CONDITIONS_PREFIX =
     'By using this app, you must agree with our\n';

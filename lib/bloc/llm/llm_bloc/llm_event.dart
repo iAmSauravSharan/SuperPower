@@ -7,12 +7,16 @@ abstract class LLMEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class GetLLMPreferenceEvent extends LLMEvent {
-  const GetLLMPreferenceEvent();
+class GetUserLLMPreferenceEvent extends LLMEvent {
+  const GetUserLLMPreferenceEvent();
 }
 
 class GetLLMsEvent extends LLMEvent {
   const GetLLMsEvent();
+}
+
+class UpdateUserLLMPreferenceEvent extends LLMEvent {
+  const UpdateUserLLMPreferenceEvent();
 }
 
 class UpdateVendorEvent extends LLMEvent {
@@ -20,29 +24,17 @@ class UpdateVendorEvent extends LLMEvent {
   const UpdateVendorEvent(this.vendor);
 }
 
-// class GetModelsEvent extends LLMEvent {
-//   const GetModelsEvent();
-// }
-
 class UpdateModelEvent extends LLMEvent {
   final String model;
   const UpdateModelEvent(this.model);
 }
-
-// class GetCreativityLevelsEvent extends LLMEvent {
-//   const GetCreativityLevelsEvent();
-// }
 
 class UpdateCreativityLevelEvent extends LLMEvent {
   final String creativityLevel;
   const UpdateCreativityLevelEvent(this.creativityLevel);
 }
 
-// class GetAccessKeyEvent extends LLMEvent {
-//   const GetAccessKeyEvent();
-// }
-
 class UpdateAccessKeyEvent extends LLMEvent {
-  final String accessKey;
-  const UpdateAccessKeyEvent(this.accessKey);
+  final Map<String, String> accessKeys;
+  const UpdateAccessKeyEvent(this.accessKeys);
 }

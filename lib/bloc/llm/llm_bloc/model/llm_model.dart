@@ -18,7 +18,7 @@ class LLMModel extends Equatable {
   List<LLMCreativity> getCreativityLevels() => _creativityLevel;
 
   @override
-  List<Object?> get props => [_name];
+  List<Object?> get props => [_isSelected];
 
   Map<String, dynamic> toJson() => {
         'name': _name,

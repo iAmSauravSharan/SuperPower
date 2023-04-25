@@ -16,6 +16,14 @@ class PrefConstant {
   static const String themeMode = 'themeModePref';
   static const String initialLaunch = 'initialLaunchPref';
   static const String loggedInStatus = 'loggedInStatusPref';
+  static const String userLLMPreference = 'userLLMPreference';
+  static const String userPreference = 'userPreference';
+  static const String appPreference = 'appPreference';
+  static const String chatPreference = 'chatPreference';
+  static const String userLLMVendor = 'userLLMVendor';
+  static const String userLLMModel = 'userLLMModel';
+  static const String userLLMCreativityLevel = 'userLLMCreativityLevel';
+  static const String userLLMAccessKeys = 'userLLMAccessKeys';
 }
 
 class MessageType {

@@ -1,48 +1,56 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:superpower/bloc/app/app_bloc/model/app_preference.dart';
+import 'package:superpower/bloc/app/app_bloc/model/home_menu.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/login.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/reset_password.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/signup.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/verify_code.dart';
+import 'package:superpower/bloc/chat/chat_bloc/model/chat.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm.dart';
+import 'package:superpower/bloc/llm/llm_bloc/model/user_llm_preference.dart';
 import 'package:superpower/bloc/user/user_bloc/model/user.dart';
+import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
 import 'package:superpower/data/model/messages.dart';
 import 'package:superpower/data/model/options.dart';
 import 'package:superpower/data/model/request.dart';
-import 'package:superpower/data/preference_manager.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
+import 'package:superpower/util/strings.dart';
+import 'package:superpower/util/util.dart';
 
-class Remote {
+class RemoteDataSource {
   final log = Logging("Remote");
   String _intention = Intention.qna.name;
 
-  Future<Map<String, String>> getHeaders({
-    bool idToken = false,
-    bool accessToken = false,
-    bool refreshToken = false,
-  }) async =>
-      {
-        "Access-Control-Allow-Origin": "*",
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Accept': '*/*',
-        if (idToken)
-          TokenType.Authorization.name:
-              await PreferenceManager.readData(TokenType.idToken.name),
-        if (accessToken)
-          TokenType.Authorization.name:
-              await PreferenceManager.readData(TokenType.accessToken.name),
-        if (refreshToken)
-          TokenType.Authorization.name:
-              await PreferenceManager.readData(TokenType.refreshToken.name),
-      };
+  static bool idToken = false;
+  static bool accessToken = false;
+
+  // Future<Map<String, String>> getHeaders({
+  //   bool idToken = false,
+  //   bool accessToken = false,
+  //   bool refreshToken = false,
+  // }) async =>
+  //     {
+  //       "Access-Control-Allow-Origin": "*",
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //       'Accept': '*/*',
+  //       if (idToken)
+  //         TokenType.Authorization.name:
+  //             await PreferenceManager.read(TokenType.idToken.name),
+  //       if (accessToken)
+  //         TokenType.Authorization.name:
+  //             await PreferenceManager.readData(TokenType.accessToken.name),
+  //       if (refreshToken)
+  //         TokenType.Authorization.name:
+  //             await PreferenceManager.readData(TokenType.refreshToken.name),
+  //     };
 
   Future<List<Messages>> getGreetings() async {
     List<Messages> messages = [];
-    final response = await http.get(Uri.parse('${baseUrl}greet'),
-        headers: await getHeaders());
+    final response = await http.get(Uri.parse('${baseUrl}greet'));
     if (response.statusCode == 200) {
       log.d("in getGreetings - response body -> ${response.body}");
       messages.add(Messages.fromJson(jsonDecode(response.body)));
@@ -58,8 +66,7 @@ class Remote {
     List<Messages> messages = [];
     final String url = '$baseUrl$_intention?prompt=${request.getQuery()}';
     log.d("in sendQuery() - url is -> $url");
-    final response =
-        await http.get(Uri.parse(url), headers: await getHeaders());
+    final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       log.d("in sendQuery - response is -> ${response.body}");
       messages.add(Messages.fromJson(jsonDecode(response.body)));
@@ -76,8 +83,7 @@ class Remote {
     //TODO: move intention to proper param
     final url = "${baseUrl}options?intention=$_intention";
     log.d("in getOptions() - url is -> $url");
-    final response =
-        await http.get(Uri.parse(url), headers: await getHeaders());
+    final response = await http.get(Uri.parse(url));
     log.d("in getOptions() - response is -> ${response.body}");
     if (response.statusCode == 200) {
       Options options = Options.fromJson(jsonDecode(response.body));
@@ -90,7 +96,7 @@ class Remote {
     return optionList;
   }
 
-  Remote withThis(String intention) {
+  RemoteDataSource withThis(String intention) {
     _intention = intention;
     return this;
   }
@@ -101,7 +107,6 @@ class Remote {
     log.d('login argument is -> ${login.toJson().toString()}');
     final response = await http.post(
       url,
-      headers: await getHeaders(),
       body: login.toJson().toString(),
     );
     return decoded(response);
@@ -112,7 +117,6 @@ class Remote {
     log.d('resetPassword argument is -> ${resetPassword.toJson().toString()}');
     final response = await http.post(
       url,
-      headers: await getHeaders(),
       body: resetPassword.toJson().toString(),
     );
     return decoded(response);
@@ -123,7 +127,6 @@ class Remote {
     log.d('sendCode argument is -> ${verifyCode.toJson().toString()}');
     final response = await http.post(
       url,
-      headers: await getHeaders(),
       body: verifyCode.toJson().toString(),
     );
     return decoded(response);
@@ -134,7 +137,6 @@ class Remote {
     log.d('sign up argument is -> ${signup.toJson().toString()}');
     final response = await http.post(
       url,
-      headers: await getHeaders(),
       body: signup.toJson().toString(),
     );
     return decoded(response);
@@ -145,7 +147,6 @@ class Remote {
     log.d('confirmUser argument is -> ${verifyCode.toJson().toString()}');
     final response = await http.post(
       url,
-      headers: await getHeaders(),
       body: verifyCode.toJson().toString(),
     );
     return decoded(response);
@@ -179,55 +180,71 @@ class Remote {
   }
 
   Future<User> getUser() async {
-    final headers = await getHeaders(accessToken: true);
+    accessToken = true;
     const url = "$authBaseUrl/users/me";
-    log.d("header is -> $headers");
     log.d("url is -> $url");
-    final rawResponse = await http.get(Uri.parse(url), headers: headers);
+    final rawResponse = await http.get(Uri.parse(url));
     final response = decoded(rawResponse) as Map<String, dynamic>;
     final userDetails = response['user'] as Map<String, dynamic>;
     final user =
         User(userDetails['username'] as String, userDetails['email'] as String);
+    accessToken = false;
     return user;
   }
 
+  //TODO: call logout API
   Future<Object> logout() {
-    //TODO: call logout API
     return Future.delayed(const Duration(milliseconds: 300), () => {});
   }
 
-  Future<String> getAccessKey() {
-    // TODO: implement getAccessKey
-    throw UnimplementedError();
-  }
-
-  Future<LLM> getUserLLMPreference() {
-    // TODO: implement getUserLLMPreference
-    throw UnimplementedError();
-  }
-
-  Future<List<LLM>> getLLMs() {
-    // TODO: implement getVendors
-    throw UnimplementedError();
-  }
-
-  Future<Object> updateAccessKey(String accessKey) {
-    // TODO: implement updateAccessKey
-    throw UnimplementedError();
-  }
-
-  Future<Object> updateCretivityLevel(String creativityLevel) {
-    // TODO: implement updateCretivityLevel
-    throw UnimplementedError();
-  }
-
-  Future<Object> updateModel(String model) {
-    // TODO: implement updateModel
-    throw UnimplementedError();
-  }
-
-  Future<Object> updateVendor(String vendor) {
+  //TODO: get user preference from the API
+  Future<UserPreference> getUserPreference() {
     return Future.delayed(const Duration(milliseconds: 300),
-        () => {log.d('update vendor called with $vendor')});
+        () => UserPreference("System", "10"));
+  }
+
+  //TODO: get app preference from the API
+  Future<AppPreference> getAppPreference() {
+    List<HomeMenu> menuList = <HomeMenu>[];
+    menuList.add(HomeMenu("QnA", "", ""));
+    menuList.add(HomeMenu("Code", "", ""));
+    menuList.add(HomeMenu("Translator", "", ""));
+    menuList.add(HomeMenu("Story", "", ""));
+    menuList.add(HomeMenu("Chat", "", ""));
+    menuList.add(HomeMenu("Image", "", ""));
+    return Future.delayed(
+        const Duration(milliseconds: 300), () => AppPreference(menuList));
+  }
+
+  //TODO: get user llm preference from the API
+  Future<UserLLMPreference> getUserLLMPreference() {
+    Map<String, String> accessKeys = <String, String>{};
+    accessKeys["1"] = "sk-4*************Pr7";
+    accessKeys["3"] = "gp-5*************Ph9";
+    return Future.delayed(const Duration(milliseconds: 300),
+        () => UserLLMPreference("1", "2", "1", accessKeys, "1"));
+  }
+
+  //TODO: get llms from the API
+  Future<List<LLM>> getLLMs() {
+    return Future.delayed(
+        const Duration(milliseconds: 300), () => getMockLLMs());
+  }
+
+  //TODO: update user preference llm to server
+  Future<Object> updateUserLLMPreference(UserLLMPreference preference) {
+    return Future.delayed(
+        const Duration(milliseconds: 300),
+        () =>
+            {log.d('update user llm pref called with ${preference.toJson()}')});
+  }
+
+  Future<Object> updateUserPreference(UserPreference userPreference) {
+    return Future.value(SUCCESS);
+  }
+
+  Future<Chat> getChatPreference() {
+    return Future.delayed(
+        const Duration(milliseconds: 300), () => Chat("", ""));
   }
 }

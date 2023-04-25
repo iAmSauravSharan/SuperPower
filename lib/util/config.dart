@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:superpower/data/preference_manager.dart';
+import 'package:superpower/data/source/cache/preference_manager.dart';
 import 'package:superpower/util/constants.dart';
 
 const double homeIconSize = 29.0;
@@ -33,14 +33,6 @@ snackbar(
   messengerKey.currentState!
     ..removeCurrentSnackBar()
     ..showSnackBar(snackBar);
-}
-
-Future<bool> isLoggedIn() async {
-  try {
-    return await PreferenceManager.readData(PrefConstant.loggedInStatus);
-  } catch (e) {
-    return false;
-  }
 }
 
 bool isUserPicAvailable() => false;

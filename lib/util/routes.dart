@@ -10,12 +10,15 @@ import 'package:superpower/ui/chat_page/chat.dart';
 import 'package:superpower/ui/error_page/error_page.dart';
 import 'package:superpower/ui/home_page/home.dart';
 import 'package:superpower/ui/profile_page/profile_page.dart';
-import 'package:superpower/ui/settings/settings_page.dart';
+import 'package:superpower/ui/settings_page/settings_page.dart';
+import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
 
 final log = Logging('GoRouter');
+
+final _repository = AppState.repository;
 
 final GoRouter router = GoRouter(
   routes: [
@@ -39,7 +42,10 @@ final GoRouter router = GoRouter(
           path: "profile",
           builder: (context, state) => const ProfilePage(),
           redirect: (context, state) async {
-            if (await isLoggedIn()) {
+            log.d('logged in status verifying');
+            final status = await _repository.isLoggedIn();
+            log.d('logged in status is $status');
+            if (status) {
               return ProfilePage.routeName;
             } else {
               return AuthPage.routeName;
@@ -57,7 +63,7 @@ final GoRouter router = GoRouter(
             );
           },
           redirect: (context, state) async {
-            if (await isLoggedIn()) {
+            if (await _repository.isLoggedIn()) {
               return ChatPage.routeName;
             } else if (state == null || state.extra == null) {
               return HomePage.routeName;
