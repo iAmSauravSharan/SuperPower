@@ -1,19 +1,18 @@
-import 'dart:async';
-
+import 'package:superpower/bloc/theme/theme_manager.dart';
 import 'package:superpower/data/repository.dart';
-import 'package:superpower/util/theme/theme_manager.dart';
+import 'package:superpower/util/logging.dart';
+
+final log = Logging('AppState');
 
 class AppState {
-  static Repository? _repository;
-  static ThemeManager? _themeManager;
+  static Repository repository = Repository();
 
-  static Repository? getRespository() {
-    _repository ??= Repository(StreamController());
-    return _repository;
-  }
+  static ThemeManager themeManager = ThemeManager();
 
-  static ThemeManager getThemeManager() {
-    _themeManager ??= ThemeManager();
-    return _themeManager!;
+  static void initialize() {
+    log.d('started initializing AppState');
+    repository;
+    themeManager;
+    log.d('finished initializing AppState');
   }
 }

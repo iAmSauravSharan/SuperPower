@@ -1,5 +1,5 @@
 import 'package:bubble/bubble.dart';
-import 'package:superpower/screen/chat_page/chat_style.dart';
+import 'package:superpower/ui/chat_page/chat_style.dart';
 import 'package:superpower/data/repository.dart';
 import 'package:superpower/main.dart';
 import 'package:superpower/data/model/messages.dart';
@@ -17,7 +17,7 @@ class ChatOptionsWidget extends StatefulWidget {
 }
 
 class _ChatOptionsWidgetState extends State<ChatOptionsWidget> {
-  final Repository? _repository = AppState.getRespository();
+  final Repository? _repository = AppState.repository;
 
   List<Option> _options = [];
 
@@ -61,7 +61,7 @@ class _ChatOptionsWidgetState extends State<ChatOptionsWidget> {
     return InkWell(
       onTap: () {
         _repository!.updateMessage(
-          Messages("_from", "_to", "_timestamp", message, [], Constants.user),
+          Messages("_from", "_to", "_timestamp", message, [], MessageType.user),
         );
       },
       child: Bubble(

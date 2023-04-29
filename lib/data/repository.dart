@@ -5,12 +5,19 @@ import 'package:superpower/data/remote.dart';
 import 'package:superpower/data/model/options.dart';
 import 'package:superpower/data/model/request.dart';
 import 'package:superpower/util/constants.dart';
+import 'package:superpower/util/logging.dart';
+
+final log = Logging('Repository');
 
 class Repository {
-  final StreamController _controller;
+  late final StreamController _controller;
+  static Repository? instance;
   String _intention = Intention.qna.name;
 
-  Repository(this._controller);
+  Repository._() {
+    log.d("initializing repository..");
+    _controller = StreamController();
+  }
 
   final List<Messages> _messages = [];
   final Remote _remote = Remote();
@@ -42,4 +49,6 @@ class Repository {
   void setIntention(String name) {
     _intention = name;
   }
+
+  factory Repository() => instance ??= Repository._();
 }

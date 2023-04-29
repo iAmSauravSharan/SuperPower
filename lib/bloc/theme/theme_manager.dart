@@ -1,18 +1,19 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:superpower/data/preference_manager.dart';
 import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
-import 'package:superpower/util/theme/theme_bloc/theme_bloc.dart';
+
+final log = Logging('ThemeManager');
 
 class ThemeManager with ChangeNotifier {
-  ThemeMode _themeMode = ThemeMode.system;
-  final log = Logging('ThemeManager');
 
-  ThemeManager() {
+  static ThemeManager? instance;
+
+  ThemeMode _themeMode = ThemeMode.system;
+
+  ThemeManager._() {
     log.d('Theme manager initialization started');
-    PreferanceManager.readData(PrefConstant.themeMode).then((value) {
+    PreferenceManager.readData(PrefConstant.themeMode).then((value) {
       log.d('value read from storage: $value');
       final theme = value ?? ThemeMode.system.name;
       final storedTheme = getThemeModeFrom(theme);
@@ -34,26 +35,28 @@ class ThemeManager with ChangeNotifier {
   void toggleTheme(ThemeMode themeMode) {
     log.d('toggling theme');
     _themeMode = themeMode;
-    PreferanceManager.saveData(PrefConstant.themeMode, themeMode.name);
+    PreferenceManager.saveData(PrefConstant.themeMode, themeMode.name);
   }
 
   void setDarkMode() {
     _themeMode = ThemeMode.dark;
     log.d('dark theme set');
-    PreferanceManager.saveData(PrefConstant.themeMode, ThemeMode.dark.name);
+    PreferenceManager.saveData(PrefConstant.themeMode, ThemeMode.dark.name);
   }
 
   void setLightMode() {
     _themeMode = ThemeMode.light;
     log.d('light theme set');
-    PreferanceManager.saveData(PrefConstant.themeMode, ThemeMode.light.name);
+    PreferenceManager.saveData(PrefConstant.themeMode, ThemeMode.light.name);
   }
 
   void setSystemMode() {
     _themeMode = ThemeMode.system;
     log.d('system theme set');
-    PreferanceManager.saveData(PrefConstant.themeMode, ThemeMode.system.name);
+    PreferenceManager.saveData(PrefConstant.themeMode, ThemeMode.system.name);
   }
 
   ThemeMode getTheme() => _themeMode;
+
+  factory ThemeManager() => instance ??= ThemeManager._();
 }

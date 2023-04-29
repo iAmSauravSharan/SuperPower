@@ -5,6 +5,8 @@ final darkTheme = ThemeData(
   visualDensity: VisualDensity.adaptivePlatformDensity,
   fontFamily: 'NotoSerif',
   primaryColor: Colors.white,
+  primaryColorLight: Colors.white,
+  primaryColorDark: Colors.black,
   secondaryHeaderColor: Colors.white54,
   brightness: Brightness.dark,
   backgroundColor: Colors.black,
@@ -15,7 +17,33 @@ final darkTheme = ThemeData(
     onBackground: Colors.black,
     onPrimary: Colors.white,
     shadow: Colors.white60,
-    secondary: Colors.grey,
+    secondary: Colors.blueAccent,
+  ),
+  inputDecorationTheme: const InputDecorationTheme(
+    fillColor: Color.fromARGB(255, 67, 67, 67),
+    filled: true,
+    isDense: true,
+    contentPadding: EdgeInsets.fromLTRB(30, 5, 30, 5),
+    border: OutlineInputBorder(
+      borderSide: BorderSide.none,
+      borderRadius: BorderRadius.all(Radius.circular(25)),
+      gapPadding: 4,
+    ),
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ButtonStyle(
+        textStyle: MaterialStateProperty.all(
+          const TextStyle(
+              fontSize: 19, color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        minimumSize: MaterialStateProperty.all(const Size.fromHeight(50)),
+        padding: MaterialStateProperty.all(const EdgeInsets.all(4)),
+        backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
+        shadowColor: MaterialStateProperty.all(Color.fromARGB(31, 48, 48, 48)),
+        shape: MaterialStateProperty.all(const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+          Radius.circular(25),
+        )))),
   ),
   iconTheme: const IconThemeData(
     color: Color.fromARGB(179, 230, 229, 229),
@@ -28,14 +56,16 @@ final darkTheme = ThemeData(
     iconColor: Colors.white70,
   ),
   appBarTheme: AppBarTheme(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       elevation: 7,
-      shadowColor: Color.alphaBlend(Color.fromARGB(255, 56, 56, 56), Colors.black),
+      shadowColor:
+          Color.alphaBlend(Color.fromARGB(255, 56, 56, 56), Colors.black),
       centerTitle: true,
       titleTextStyle: const TextStyle(
         fontSize: 21,
         fontWeight: FontWeight.bold,
-        fontFamily: 'NotoSerif'
+        fontFamily: 'NotoSerif',
+        color: Colors.white,
       ),
       iconTheme: const IconThemeData(
         color: Color.fromARGB(255, 255, 255, 255),
@@ -47,6 +77,8 @@ final lightTheme = ThemeData(
   primarySwatch: colorCustom,
   visualDensity: VisualDensity.adaptivePlatformDensity,
   fontFamily: 'NotoSerif',
+  primaryColorLight: Colors.white,
+  primaryColorDark: Colors.black,
   primaryColor: const Color.fromARGB(255, 0, 0, 0),
   secondaryHeaderColor: const Color.fromARGB(255, 88, 88, 88),
   brightness: Brightness.light,
@@ -54,11 +86,38 @@ final lightTheme = ThemeData(
   scaffoldBackgroundColor: const Color.fromARGB(255, 219, 219, 219),
   dividerColor: const Color.fromARGB(255, 180, 180, 180),
   colorScheme: const ColorScheme.light(
-    primary: Color.fromARGB(255, 255, 255, 255),
+    primary: Color.fromARGB(255, 149, 149, 149),
     onBackground: Color.fromARGB(255, 228, 228, 228),
     onPrimary: Color.fromARGB(255, 2, 2, 2),
     shadow: Color.fromARGB(153, 0, 0, 0),
-    secondary: Colors.grey,
+    secondary: Colors.blueAccent,
+  ),
+  inputDecorationTheme: const InputDecorationTheme(
+    fillColor: Color.fromARGB(255, 255, 255, 255),
+    filled: true,
+    isDense: true,
+    contentPadding: EdgeInsets.fromLTRB(20, 5, 20, 5),
+    border: OutlineInputBorder(
+      borderSide: BorderSide.none,
+      borderRadius: BorderRadius.all(Radius.circular(25)),
+      gapPadding: 4,
+    ),
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ButtonStyle(
+        textStyle: MaterialStateProperty.all(
+          const TextStyle(
+              fontSize: 19, color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        visualDensity: VisualDensity.compact,
+        minimumSize: MaterialStateProperty.all(const Size.fromHeight(50)),
+        padding: MaterialStateProperty.all(const EdgeInsets.all(4)),
+        backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
+        shadowColor: MaterialStateProperty.all(Colors.black12),
+        shape: MaterialStateProperty.all(const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+          Radius.circular(25),
+        )))),
   ),
   iconTheme: const IconThemeData(
     color: Color.fromARGB(179, 30, 30, 30),
@@ -114,3 +173,10 @@ Map<int, Color> whiteColor = {
 };
 
 MaterialColor colorCustom = MaterialColor(0xFF880E4F, whiteColor);
+
+const String system = "System";
+const String light = "Light";
+const String dark = "Dark";
+const themes = <String>[system, light, dark];
+
+

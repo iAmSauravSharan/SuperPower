@@ -2,29 +2,22 @@
 
 import 'package:flutter/material.dart';
 
-const String TERMS_AND_CONDITIONS_PREFIX =
-    'By using this app, you must agree with our\n';
-const String TERMS_AND_CONDITIONS = 'Terms of usage';
-const String PRIVACY_POLICY = 'Privacy Policy';
-const String AND = ' and ';
+const String baseUrl = "http://localhost:8184/";
 
-const String systemTheme = "System";
-const String lightTheme = "Light";
-const String darkTheme = "Dark";
-const themes = <String>[systemTheme, lightTheme, darkTheme];
+const String version = "0.0.1";
+
+const String bearerToken = "Bearer Token";
 
 class PrefConstant {
   static const String themeMode = 'themeModePref';
 }
 
-class Constants {
+class MessageType {
   static const int system = 1;
   static const int user = 2;
   static const int systemImage = 3;
   static const int userImage = 4;
   static const int broadcast = 5;
-
-  static const String baseUrl = "http://localhost:8084/";
 }
 
 class ColorFor {
@@ -58,8 +51,7 @@ class Profile {
   static const Color tilesColor = Color.fromARGB(255, 232, 243, 249);
   static const Color iconColor = Colors.black;
   static const bool isTilesDensed = true;
-  static const TextStyle tilesTitleStyle =
-      TextStyle(fontSize: 17);
+  static const TextStyle tilesTitleStyle = TextStyle(fontSize: 17);
 }
 
 enum Intention { qna, image, chat, translator, story, code }
