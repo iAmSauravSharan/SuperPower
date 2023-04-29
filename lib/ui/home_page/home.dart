@@ -1,11 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:superpower/ui/authentication_page/auth.dart';
+import 'package:superpower/shared/widgets/page_loading.dart';
 import 'package:superpower/ui/chat_page/chat.dart';
-import 'package:superpower/data/repository.dart';
 import 'package:superpower/ui/home_page/option.dart';
-import 'package:superpower/main.dart';
 import 'package:superpower/ui/profile_page/profile_page.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
@@ -14,19 +11,41 @@ import 'package:superpower/util/logging.dart';
 
 final log = Logging('HomePage');
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
-
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
   static const routeName = '/home';
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool isDataFetched = true;
+  final _repository = AppState.repository;
+
+  @override
+  void initState() {
+    super.initState();
+    _repository.isInitialAppLaunch().then((status) => {
+          setState(() => {isDataFetched = !status, loadInitialData()})
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) => Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: const HomeWidget(),
+        body: isDataFetched ? const HomeWidget() : const PageLoading(),
       ),
     );
+  }
+
+  void loadInitialData() async {
+    await _repository.loadInitialData();
+    setState(() {
+      isDataFetched = true;
+    });
   }
 }
 
@@ -61,10 +80,6 @@ class HomeWidget extends StatelessWidget {
           child: loadProfileImage(),
           onTap: () => {
             context.go(ProfilePage.routeName),
-            // Navigator.pushNamed(
-            //   context,
-            //   (isLoggedIn() ? ProfilePage.routeName : AuthPage.routeName),
-            // ),
           },
         ),
       ),
@@ -83,15 +98,13 @@ class HomeWidget extends StatelessWidget {
                 style: TextStyle(
                   color: Theme.of(context).secondaryHeaderColor,
                   fontSize: 21.0,
+                  wordSpacing: 4,
+                  letterSpacing: 2,
                 ),
               ),
-              const TextSpan(
-                text: "Superpower⚡",
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              TextSpan(
+                  text: "Superpower⚡",
+                  style: Theme.of(context).textTheme.displayLarge),
             ],
           ),
         ),
@@ -101,7 +114,7 @@ class HomeWidget extends StatelessWidget {
 }
 
 class HomeGridWidget extends StatelessWidget {
-  final Repository? _repository = AppState.repository;
+  final _repository = AppState.repository;
 
   HomeGridWidget({Key? key}) : super(key: key);
 
@@ -109,8 +122,6 @@ class HomeGridWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, orientation) {
       return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        reverse: false,
         padding: const EdgeInsets.all(2.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -179,7 +190,6 @@ class HomeGridWidget extends StatelessWidget {
     );
     final topRow = Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
       children: [
         QnAOption,
         codeOption,
@@ -218,10 +228,9 @@ class HomeGridWidget extends StatelessWidget {
         log.d("onTap - $arguments");
         GoRouter.of(context).go(
           ChatPage.routeName,
-          // queryParams: {'title': arguments['title'] as String},
           extra: (arguments),
         );
-        _repository!.setIntention(intention.name);
+        _repository.setIntention(intention.name);
       },
       child: OptionWidget(
         color,

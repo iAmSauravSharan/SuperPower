@@ -1,12 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:superpower/bloc/auth/auth_bloc/authentication_bloc.dart';
 import 'package:superpower/bloc/theme/theme_bloc/theme_bloc.dart';
 import 'package:superpower/bloc/theme/theme_constants.dart';
 import 'package:superpower/bloc/theme/theme_manager.dart';
-import 'package:superpower/data/preference_manager.dart';
+import 'package:superpower/bloc/user/user_bloc/model/user.dart';
+import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
+import 'package:superpower/bloc/user/user_bloc/user_bloc.dart';
+import 'package:superpower/ui/faq_page/faq_page.dart';
+import 'package:superpower/ui/feedback_page/feedback_page.dart';
+import 'package:superpower/ui/home_page/home.dart';
+import 'package:superpower/ui/settings_page/settings_page.dart';
 import 'package:superpower/ui/web_page/web_page.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
@@ -14,6 +20,7 @@ import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
 import 'package:superpower/util/strings.dart';
 import 'package:superpower/util/util.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final log = Logging("Profile Page");
 
@@ -46,44 +53,34 @@ class ProfileWidget extends StatefulWidget {
 class _ProfileWidgetState extends State<ProfileWidget> {
   String themeValue = system;
   String name = 'Human';
+  UserPreference _userPreference = UserPreference();
   late ThemeManager themeManager = AppState.themeManager;
+  final _authentication = AppState.authenticationBloc;
+  final _userRepository = AppState.userBloc;
 
   @override
   void initState() {
     log.d('entering into initState()');
-    retrieveUsername();
-    PreferenceManager.readData(PrefConstant.themeMode).then((value) {
-      log.d('in initState() got value from pref -> $value');
-      if (value != null) {
-        setState(() {
-          if (value == ThemeMode.system.name) {
-            themeValue = system;
-          } else if (value == ThemeMode.light.name) {
-            themeValue = light;
-          } else {
-            themeValue = dark;
-          }
-        });
-      }
-    });
     super.initState();
+    retrieveUserPreference();
+    retrieveUsername();
     log.d('init state done');
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           loadProfileImage(size: 88),
           const SizedBox(height: 10),
           username(),
           const SizedBox(height: 20),
           rechargeCredit(),
+          const SizedBox(height: 2),
+          appSettings(),
           const SizedBox(height: 2),
           selectTheme(),
           const SizedBox(height: 2),
@@ -94,6 +91,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           feedback(),
           const SizedBox(height: 2),
           contactUs(),
+          const SizedBox(height: 2),
+          faqs(),
           const SizedBox(height: 2),
           logout(),
           const SizedBox(height: 70),
@@ -108,10 +107,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   Widget username() {
     return Text(
       'Hi, $name 👋',
-      style: const TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-      ),
+      style: Theme.of(context).textTheme.displayMedium,
     );
   }
 
@@ -127,11 +123,29 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         ),
         dense: Profile.isTilesDensed,
         subtitle: const Text('click to add credit points'),
-        trailing: const Text(
-          '10 credits',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        trailing: Text(
+          '${_userPreference.getAvailableCredits()} credits',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         onTap: () => showPointsBottomSheet(),
+      ),
+    );
+  }
+
+  Widget appSettings() {
+    return Focus(
+      child: ListTile(
+        title: const Text(
+          'App Settings',
+          style: Profile.tilesTitleStyle,
+        ),
+        leading: const Icon(
+          Icons.settings_suggest_rounded,
+        ),
+        dense: Profile.isTilesDensed,
+        subtitle: const Text('update access keys, model and more'),
+        trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+        onTap: () => {GoRouter.of(context).push(SettingPage.routeName)},
       ),
     );
   }
@@ -146,8 +160,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         trailing: Focus(
           child: DropdownButton(
             elevation: 5,
-            underline: null,
-            value: themeValue,
+            value: _userPreference.getAppTheme(),
             alignment: Alignment.center,
             icon: const Icon(Icons.keyboard_arrow_down_rounded),
             items: themes.map((String items) {
@@ -160,16 +173,11 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               log.d('theme value chaged');
               setState(() {
                 themeValue = value!;
-                if (themeValue == light) {
-                  themeManager.setLightMode();
-                } else if (themeValue == dark) {
-                  themeManager.setDarkMode();
-                } else {
-                  themeManager.setSystemMode();
-                }
-                BlocProvider.of<ThemeBloc>(context).add(
-                  ThemeChanged(themeMode: themeManager.getTheme()),
-                );
+                _userPreference = UserPreference(
+                    themeValue, _userPreference.getAvailableCredits());
+                _userRepository
+                    .loadUser(UpdateUserPreferenceEvent(_userPreference));
+                setTheme(themeValue);
               });
             },
           ),
@@ -189,7 +197,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     return Focus(
       child: ListTile(
         leading: const Icon(
-          Icons.rate_review_rounded,
+          Icons.star_half_rounded,
         ),
         trailing: const Icon(Icons.keyboard_arrow_right_rounded),
         subtitle: Text('on the $store'),
@@ -223,15 +231,15 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     return Focus(
       child: ListTile(
         leading: const Icon(
-          Icons.feedback_rounded,
+          Icons.rate_review_rounded,
         ),
         trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-        subtitle: const Text('about the changes you want to see'),
+        subtitle: const Text('changes you want to see'),
         title: const Text(
           'Provide feedback',
           style: Profile.tilesTitleStyle,
         ),
-        onTap: () => sendEmail(),
+        onTap: () => {GoRouter.of(context).push(FeedbackPage.routeName)},
       ),
     );
   }
@@ -244,12 +252,30 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         ),
         dense: Profile.isTilesDensed,
         trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-        subtitle: const Text('to share your queries'),
+        subtitle: const Text('share your queries'),
         title: const Text(
           'Contact Us',
           style: Profile.tilesTitleStyle,
         ),
-        onTap: () => openStore(),
+        onTap: () => sendEmail(),
+      ),
+    );
+  }
+
+  Widget faqs() {
+    return Focus(
+      child: ListTile(
+        leading: const Icon(
+          Icons.feedback_rounded,
+        ),
+        dense: Profile.isTilesDensed,
+        trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+        subtitle: const Text('frequently asked questions'),
+        title: const Text(
+          FAQTitle,
+          style: Profile.tilesTitleStyle,
+        ),
+        onTap: () => {GoRouter.of(context).push(FAQsPage.routeName)},
       ),
     );
   }
@@ -257,19 +283,22 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   Widget logout() {
     return Focus(
       child: ListTile(
-        tileColor: Colors.red.shade100,
+        tileColor: const Color.fromARGB(255, 245, 57, 76),
         leading: const Icon(
           Icons.logout_rounded,
-          color: Colors.red,
+          color: Color.fromARGB(255, 252, 237, 236),
         ),
         dense: Profile.isTilesDensed,
-        title: const Text(
+        title: Text(
           'Log out',
-          style: Profile.tilesTitleStyle,
+          style: TextStyle(
+            fontSize: 17,
+            color: Theme.of(context).primaryColorLight,
+          ),
         ),
-        onTap: () => FirebaseAuth.instance
-            .signOut()
-            .whenComplete(() => Navigator.of(context).pop()),
+        onTap: () => _authentication.authenticate(LogoutEvent()).whenComplete(
+            () => GoRouter.of(context)
+                .pop((route) => route.settings.name == HomePage.routeName)),
       ),
     );
   }
@@ -340,31 +369,88 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   }
 
   Future<void> retrieveUsername() async {
-    String storedName = name;
-    final pattern = RegExp('\\s+');
-    final userEmail = FirebaseAuth.instance.currentUser?.email;
-    log.d('retrieveUsername userEmail is -> $userEmail');
-    final collection = FirebaseFirestore.instance.collection('UserData');
-    final querySnapshot = await collection.get();
-    for (var queryDocumentSnapshot in querySnapshot.docs) {
-      Map<String, dynamic> data = queryDocumentSnapshot.data();
-      if (data['email'] == userEmail) {
-        storedName = data['name'] ?? name;
-        if (storedName.split(pattern).length > 1) {
-          storedName = storedName.split(pattern)[0];
-        }
-        setState(() {
-          name = storedName.isNotEmpty ? storedName : name;
+    _userRepository.loadUser(const GetUserEvent()).then((user) => {
+          if ((user as User).getUsername().isNotEmpty)
+            {
+              setState(() => name = user.getUsername()),
+            }
         });
-      }
+  }
+
+  Future<void> retrieveUserPreference() async {
+    await _userRepository
+        .loadUser(const GetUserPreferenceEvent())
+        .then((user) => {
+              if (user as UserPreference != null)
+                {
+                  setState(() => {
+                        _userPreference = user,
+                        themeValue = _userPreference.getAppTheme(),
+                        setTheme(themeValue)
+                      }),
+                }
+            });
+  }
+
+  void sendEmail() async {
+    final Uri uri = Uri(
+      scheme: 'mailto',
+      path: developerMailId,
+      queryParameters: {'subject': '', 'body': ''},
+    );
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      // throw 'Could not launch $url';
     }
   }
 
-  void sendEmail() {}
-
   void share() {}
 
-  void openStore() {}
+  void openStore() {
+    switch (getDeviceType()) {
+      case DeviceType.android:
+        launch(googlePlayUrl);
+        break;
+      case DeviceType.macos:
+      case DeviceType.ios:
+        launch(appStoreUrl);
+        break;
+      case DeviceType.windows:
+        launch(microsoftStoreUrl);
+        break;
+      case DeviceType.fuchsia:
+      case DeviceType.web:
+      case DeviceType.linux:
+        launch(webStoreUrl);
+        break;
+    }
+  }
+
+  void launch(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      snackbar('Could not launch $url', isError: true);
+    }
+  }
 
   void showPointsBottomSheet() {}
+
+  void setTheme(String themeValue) {
+    if (themeValue == light) {
+      themeManager.setLightMode();
+    } else if (themeValue == dark) {
+      themeManager.setDarkMode();
+    } else {
+      themeManager.setSystemMode();
+    }
+    BlocProvider.of<ThemeBloc>(context).add(
+      ThemeChanged(
+        themeMode: themeManager.getTheme(),
+      ),
+    );
+  }
 }

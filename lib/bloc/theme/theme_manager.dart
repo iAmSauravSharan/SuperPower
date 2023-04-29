@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:superpower/data/preference_manager.dart';
+import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
 
 final log = Logging('ThemeManager');
 
 class ThemeManager with ChangeNotifier {
-
   static ThemeManager? instance;
 
   ThemeMode _themeMode = ThemeMode.system;
+  final _repository = AppState.repository;
 
   ThemeManager._() {
     log.d('Theme manager initialization started');
-    PreferenceManager.readData(PrefConstant.themeMode).then((value) {
+    _repository.getUserPreference().then((userPreference) {
+      final value = userPreference.getAppTheme();
       log.d('value read from storage: $value');
       final theme = value ?? ThemeMode.system.name;
       final storedTheme = getThemeModeFrom(theme);
@@ -35,25 +36,25 @@ class ThemeManager with ChangeNotifier {
   void toggleTheme(ThemeMode themeMode) {
     log.d('toggling theme');
     _themeMode = themeMode;
-    PreferenceManager.saveData(PrefConstant.themeMode, themeMode.name);
+    _repository.saveTheme(PrefConstant.themeMode, themeMode.name);
   }
 
   void setDarkMode() {
     _themeMode = ThemeMode.dark;
     log.d('dark theme set');
-    PreferenceManager.saveData(PrefConstant.themeMode, ThemeMode.dark.name);
+    _repository.saveTheme(PrefConstant.themeMode, ThemeMode.dark.name);
   }
 
   void setLightMode() {
     _themeMode = ThemeMode.light;
     log.d('light theme set');
-    PreferenceManager.saveData(PrefConstant.themeMode, ThemeMode.light.name);
+    _repository.saveTheme(PrefConstant.themeMode, ThemeMode.light.name);
   }
 
   void setSystemMode() {
     _themeMode = ThemeMode.system;
     log.d('system theme set');
-    PreferenceManager.saveData(PrefConstant.themeMode, ThemeMode.system.name);
+    _repository.saveTheme(PrefConstant.themeMode, ThemeMode.system.name);
   }
 
   ThemeMode getTheme() => _themeMode;

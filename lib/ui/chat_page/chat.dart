@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:superpower/data/model/messages.dart';
-import 'package:superpower/data/repository.dart';
+import 'package:superpower/data/data_repository.dart';
 import 'package:superpower/main.dart';
 import 'package:superpower/ui/chat_page/chat_style.dart';
 import 'package:superpower/ui/chat_page/options.dart';
@@ -16,11 +16,7 @@ class ChatPage extends StatelessWidget {
 
   final String title;
   final Color color;
-  const ChatPage({
-    required this.title, 
-    required this.color,
-    super.key
-    });
+  const ChatPage({required this.title, required this.color, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,17 +52,21 @@ class ConversationsWidget extends StatefulWidget {
 class _ConversationsWidgetState extends State<ConversationsWidget> {
   final List<Messages> _messages = [];
   StreamSubscription? _subscription;
-  final Repository _repository = AppState.repository!;
+  final DataRepository _repository = AppState.repository!;
   final ScrollController _scrollController = ScrollController();
 
   Future<void> getMessages() async {
     _subscription = _repository.getController().stream.listen((event) {
-      setState(() {
-        _messages.clear();
-        _messages.addAll(event);
-        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 500), curve: Curves.easeOut);
-      });
+      if (this.mounted) {
+        setState(() {
+          _messages.clear();
+          _messages.addAll(event);
+          _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut);
+        });
+      }
     });
     await _repository.getGreetings();
   }
@@ -117,7 +117,7 @@ class _ConversationsWidgetState extends State<ConversationsWidget> {
 class ActionsWidget extends StatelessWidget {
   String _enteredMessage = "";
   final Color buttonColor;
-  final Repository _repository = AppState.repository!;
+  final DataRepository _repository = AppState.repository!;
   final _messageController = TextEditingController();
 
   ActionsWidget({required this.buttonColor, super.key});

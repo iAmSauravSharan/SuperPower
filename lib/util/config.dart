@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:superpower/data/source/cache/preference_manager.dart';
+import 'package:superpower/util/constants.dart';
 
 const double homeIconSize = 29.0;
 const Color homeIconColor = Color.fromARGB(255, 249, 246, 246);
@@ -34,10 +35,7 @@ snackbar(
     ..showSnackBar(snackBar);
 }
 
-bool isLoggedIn() => (FirebaseAuth.instance.currentUser != null);
-
-bool isUserPicAvailable() => (FirebaseAuth.instance.currentUser != null &&
-    FirebaseAuth.instance.currentUser!.photoURL != null);
+bool isUserPicAvailable() => false;
 
 Widget loadProfileImage({double size = 38}) {
   return isUserPicAvailable()
@@ -45,7 +43,7 @@ Widget loadProfileImage({double size = 38}) {
           radius: size,
           backgroundColor: Colors.white,
           child: Image.network(
-            FirebaseAuth.instance.currentUser!.photoURL!,
+            'FirebaseAuth.instance.currentUser!.photoURL!',
             fit: BoxFit.fill,
           ),
         )

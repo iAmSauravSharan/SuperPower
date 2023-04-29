@@ -1,7 +1,11 @@
+// import 'package:auth_module/login/view/login_page.dart';
+// import 'package:auth_module/signup/view/signup_page.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:superpower/ui/authentication_page/login.dart';
-import 'package:superpower/ui/authentication_page/signup.dart';
+import 'package:superpower/data/data_repository.dart';
+import 'package:superpower/ui/authentication_page/login_page.dart';
+import 'package:superpower/ui/authentication_page/signup_page.dart';
+import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/logging.dart';
 import 'package:superpower/util/network_connectivity.dart';
@@ -18,7 +22,7 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
-  bool _isLogin = false;
+  final bool _isLogin = false;
   Map _source = {ConnectivityResult.none: false};
   final NetworkConnectivity _networkConnectivity = NetworkConnectivity.instance;
   String connectivityMessage = '';
@@ -49,6 +53,7 @@ class _AuthPageState extends State<AuthPage> {
           isConnectedToInternet = false;
           break;
       }
+
       if (connectionWasBrokenEarlier) {
         snackbar(connectivityMessage,
             isError: !isConnectedToInternet,
