@@ -11,4 +11,12 @@ class GetAppPreferenceEvent extends AppEvent {
   const GetAppPreferenceEvent();
 }
 
+class GetAppFAQEvent extends AppEvent {
+  const GetAppFAQEvent();
+}
 
+class SubmitFeedbackEvent extends AppEvent {
+  final double rating;
+  final String feedback;
+  const SubmitFeedbackEvent(this.rating, this.feedback);
+}

@@ -87,8 +87,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     );
   }
 
-  Widget _goBackField() => GestureDetector(
-        onTap: () => {
+  Widget _goBackField() => TextButton(
+        onPressed: () => {
           GoRouter.of(context).pushReplacement(
               '${AuthPage.routeName}${ForgotPasswordPage.routeName}'),
         },

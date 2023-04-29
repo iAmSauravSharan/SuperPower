@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:superpower/bloc/app/app_bloc/model/app_preference.dart';
+import 'package:superpower/bloc/app/app_bloc/model/faq.dart';
 import 'package:superpower/bloc/app/app_repository.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/login.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/reset_password.dart';
@@ -72,8 +73,9 @@ class DataRepository
   }
 
   @override
-  Future<bool> isLoggedIn() {
-    return _cache.isLoggedIn();
+  Future<bool> isLoggedIn() async {
+    bool isLoggedIn = await _cache.isLoggedIn();
+    return Future.value(isLoggedIn);
   }
 
   @override
@@ -236,8 +238,7 @@ class DataRepository
       userPreference = await _remote.getUserPreference();
       _cache.updateUserPreference(userPreference);
     }
-    final json = jsonDecode(userPreference as String) as Map<String, dynamic>;
-    return UserPreference.fromJson(json);
+    return userPreference;
   }
 
   @override
@@ -258,12 +259,9 @@ class DataRepository
   }
 
   @override
-  Future<Chat> getChatPreference() {
-    final preference = _cache.getChatPreference();
-    if (preference == null) {
-      return _remote.getChatPreference();
-    }
-    return preference;
+  Future<Chat> getChatPreference() async {
+    final preference = await _cache.getChatPreference();
+    return preference ?? await _remote.getChatPreference();
   }
 
   @override
@@ -281,5 +279,20 @@ class DataRepository
     await _remote.getAppPreference();
     await _remote.getUserPreference();
     await _remote.getUserLLMPreference();
+  }
+
+  @override
+  Future<void> submitFeedback(double rating, String feedback) {
+    return _remote.submitFeedback(rating, feedback);
+  }
+
+  @override
+  Future<List<FAQ>> getFAQs() async {
+    var faqs = await _cache.getFAQs();
+    if (faqs == null) {
+      faqs = await _remote.getFAQs();
+      _cache.saveFAQs(faqs);
+    }
+    return Future.value(faqs);
   }
 }

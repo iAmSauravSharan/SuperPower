@@ -102,8 +102,8 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
     );
   }
 
-  Widget _getChangeOTPDestinationHeading() => GestureDetector(
-        onTap: () => {
+  Widget _getChangeOTPDestinationHeading() => TextButton(
+        onPressed: () => {
           GoRouter.of(context).go(
             '${AuthPage.routeName}${ForgotPasswordPage.routeName}',
             // queryParams: {'title': arguments['title'] as String},

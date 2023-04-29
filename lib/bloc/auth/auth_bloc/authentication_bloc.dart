@@ -39,7 +39,7 @@ class AuthenticationBloc
             (event).password,
             ipAddress,
             getCurrentTimestamp().toString(),
-            getDeviceType()));
+            getDeviceType().name));
       case SignupEvent:
         String ipAddress = await getIpAddress();
         return authRepository.signup(Signup(
@@ -48,7 +48,7 @@ class AuthenticationBloc
             (event).password,
             ipAddress,
             getCurrentTimestamp().toString(),
-            getDeviceType()));
+            getDeviceType().name));
       case SendCodeEvent:
         String ipAddress = await getIpAddress();
         return authRepository.sendCode(VerifyCode(
@@ -57,7 +57,7 @@ class AuthenticationBloc
             (event as SendCodeEvent).email,
             not_available,
             ipAddress,
-            getDeviceType()));
+            getDeviceType().name));
       case VerifyCodeEvent:
         String ipAddress = await getIpAddress();
         return authRepository.confirmUser(VerifyCode(
@@ -66,7 +66,7 @@ class AuthenticationBloc
             not_available,
             not_available,
             ipAddress,
-            getDeviceType()));
+            getDeviceType().name));
       case ResetPasswordEvent:
         String ipAddress = await getIpAddress();
         return authRepository.resetPassword(ResetPassword(
@@ -74,7 +74,7 @@ class AuthenticationBloc
             (event).password,
             (event).code,
             ipAddress,
-            getDeviceType()));
+            getDeviceType().name));
       case LogoutEvent:
         return authRepository.logout();
       default:

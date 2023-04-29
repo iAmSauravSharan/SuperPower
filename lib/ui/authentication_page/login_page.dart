@@ -170,8 +170,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _getForgotOption() => GestureDetector(
-        onTap: () => {
+  Widget _getForgotOption() => TextButton(
+        onPressed: () => {
           GoRouter.of(context).go(
             '${AuthPage.routeName}${ForgotPasswordPage.routeName}',
             // queryParams: {'title': arguments['title'] as String},

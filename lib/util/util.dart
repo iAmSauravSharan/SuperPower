@@ -47,14 +47,23 @@ Future<String> getIpAddress() async {
   return not_available;
 }
 
-String getDeviceType() {
-  String platform;
+DeviceType getDeviceType() {
   if (kIsWeb) {
-    platform = 'web';
-  } else {
-    platform = Platform.operatingSystem;
+    return DeviceType.web;
+  } else if (Platform.operatingSystem == 'android') {
+    return DeviceType.android;
+  } else if (Platform.operatingSystem == 'ios') {
+    return DeviceType.ios;
+  } else if (Platform.operatingSystem == 'windows') {
+    return DeviceType.windows;
+  } else if (Platform.operatingSystem == 'macos') {
+    return DeviceType.macos;
+  } else if (Platform.operatingSystem == 'linux') {
+    return DeviceType.linux;
+  } else if (Platform.operatingSystem == 'fuchsia') {
+    return DeviceType.fuchsia;
   }
-  return platform;
+  return DeviceType.web;
 }
 
 List<LLM> getMockLLMs() {

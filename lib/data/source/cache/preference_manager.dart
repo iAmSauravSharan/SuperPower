@@ -34,10 +34,22 @@ class PreferenceManager {
     }
   }
 
+  void saveList(String key, List<String> value) async {
+    _sharedPreference = await SharedPreferences.getInstance();
+    _sharedPreference.setStringList(key, value);
+  }
+
   Future<dynamic>? read(String key) async {
     _sharedPreference = await SharedPreferences.getInstance();
     if (!_sharedPreference.containsKey(key)) return null;
     dynamic obj = _sharedPreference.get(key);
+    return obj;
+  }
+
+  Future<dynamic>? readList(String key) async {
+    _sharedPreference = await SharedPreferences.getInstance();
+    if (!_sharedPreference.containsKey(key)) return null;
+    dynamic obj = _sharedPreference.getStringList(key);
     return obj;
   }
 

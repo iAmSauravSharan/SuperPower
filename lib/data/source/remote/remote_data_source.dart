@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:http_interceptor/http_interceptor.dart';
 import 'package:superpower/bloc/app/app_bloc/model/app_preference.dart';
+import 'package:superpower/bloc/app/app_bloc/model/faq.dart';
 import 'package:superpower/bloc/app/app_bloc/model/home_menu.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/login.dart';
 import 'package:superpower/bloc/auth/auth_bloc/model/reset_password.dart';
@@ -15,6 +18,9 @@ import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
 import 'package:superpower/data/model/messages.dart';
 import 'package:superpower/data/model/options.dart';
 import 'package:superpower/data/model/request.dart';
+import 'package:superpower/data/source/remote/interceptors/append_headers_interceptor.dart';
+import 'package:superpower/data/source/remote/interceptors/expired_token_interceptor.dart';
+import 'package:superpower/data/source/remote/interceptors/logging_interceptor.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
@@ -28,25 +34,12 @@ class RemoteDataSource {
   static bool idToken = false;
   static bool accessToken = false;
 
-  // Future<Map<String, String>> getHeaders({
-  //   bool idToken = false,
-  //   bool accessToken = false,
-  //   bool refreshToken = false,
-  // }) async =>
-  //     {
-  //       "Access-Control-Allow-Origin": "*",
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //       'Accept': '*/*',
-  //       if (idToken)
-  //         TokenType.Authorization.name:
-  //             await PreferenceManager.read(TokenType.idToken.name),
-  //       if (accessToken)
-  //         TokenType.Authorization.name:
-  //             await PreferenceManager.readData(TokenType.accessToken.name),
-  //       if (refreshToken)
-  //         TokenType.Authorization.name:
-  //             await PreferenceManager.readData(TokenType.refreshToken.name),
-  //     };
+  late final InterceptedHttp http;
+
+  RemoteDataSource() {
+    http = InterceptedHttp.build(
+        interceptors: [LoggingInterceptor(), AppendHeadersInterceptor()]);
+  }
 
   Future<List<Messages>> getGreetings() async {
     List<Messages> messages = [];
@@ -152,7 +145,7 @@ class RemoteDataSource {
     return decoded(response);
   }
 
-  Object decoded(http.Response response) {
+  Object decoded(response) {
     final Map<String, dynamic> decodedResponse = jsonDecode(response.body);
     log.d('response status code ->  ${response.statusCode}');
     log.d('\nresponse body came as -> ${response.body.toString()}');
@@ -199,8 +192,8 @@ class RemoteDataSource {
 
   //TODO: get user preference from the API
   Future<UserPreference> getUserPreference() {
-    return Future.delayed(const Duration(milliseconds: 300),
-        () => UserPreference("System", "10"));
+    return Future.delayed(
+        const Duration(milliseconds: 300), () => UserPreference("Light", "10"));
   }
 
   //TODO: get app preference from the API
@@ -246,5 +239,18 @@ class RemoteDataSource {
   Future<Chat> getChatPreference() {
     return Future.delayed(
         const Duration(milliseconds: 300), () => Chat("", ""));
+  }
+
+  Future<void> submitFeedback(double rating, String feedback) {
+    return Future.delayed(const Duration(milliseconds: 300), () => {});
+  }
+
+  Future<List<FAQ>> getFAQs() {
+    final faqs = <FAQ>[];
+    faqs.add(const FAQ("How can I use this app?", 
+    "You can use this app to ask your queries at different level. You could ask AI to solve your maths problem, your day to day coding problems, as well as you could ask for health related tips."));
+    faqs.add(const FAQ("What are different mode of Payment is supported?", 
+    "We support in app payments from google play store, apple app store as well as custom payments mode with credit cards, debit cards. internet banking and UPIs"));
+    return Future.delayed(const Duration(microseconds: 300), () => faqs);
   }
 }

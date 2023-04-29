@@ -80,10 +80,6 @@ class HomeWidget extends StatelessWidget {
           child: loadProfileImage(),
           onTap: () => {
             context.go(ProfilePage.routeName),
-            // Navigator.pushNamed(
-            //   context,
-            //   (isLoggedIn() ? ProfilePage.routeName : AuthPage.routeName),
-            // ),
           },
         ),
       ),
@@ -126,8 +122,6 @@ class HomeGridWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, orientation) {
       return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        reverse: false,
         padding: const EdgeInsets.all(2.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -196,7 +190,6 @@ class HomeGridWidget extends StatelessWidget {
     );
     final topRow = Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
       children: [
         QnAOption,
         codeOption,
@@ -235,10 +228,9 @@ class HomeGridWidget extends StatelessWidget {
         log.d("onTap - $arguments");
         GoRouter.of(context).go(
           ChatPage.routeName,
-          // queryParams: {'title': arguments['title'] as String},
           extra: (arguments),
         );
-        _repository!.setIntention(intention.name);
+        _repository.setIntention(intention.name);
       },
       child: OptionWidget(
         color,

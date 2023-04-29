@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:superpower/bloc/app/app_bloc/model/app_preference.dart';
+import 'package:superpower/bloc/app/app_bloc/model/faq.dart';
 import 'package:superpower/bloc/chat/chat_bloc/model/chat.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/user_llm_preference.dart';
 import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
@@ -19,8 +20,7 @@ class CacheDataSource {
 
   Future<bool> isLoggedIn() async {
     if (await _preference.containsKey(PrefConstant.loggedInStatus)) {
-      return _preference.read(PrefConstant.loggedInStatus)
-          as Future<bool>;
+      return await _preference.read(PrefConstant.loggedInStatus);
     }
     return Future.value(false);
   }
@@ -29,13 +29,13 @@ class CacheDataSource {
     return _preference.save(PrefConstant.loggedInStatus, isLoggedIn);
   }
 
-  Future<String> getToken(TokenType type) {
-    return _preference.read(type.name) as Future<String>;
+  Future<String> getToken(TokenType type) async {
+    return await _preference.read(type.name);
   }
 
   Future<bool> isInitialAppLaunch() async {
     if (await _preference.containsKey(PrefConstant.initialLaunch)) {
-      return await _preference.read(PrefConstant.initialLaunch) as Future<bool>;
+      return await _preference.read(PrefConstant.initialLaunch);
     }
     return Future.value(true);
   }
@@ -53,6 +53,10 @@ class CacheDataSource {
     _preference.delete(TokenType.idToken.name);
     _preference.delete(TokenType.refreshToken.name);
     _preference.save(PrefConstant.loggedInStatus, false);
+    _preference.save(PrefConstant.initialLaunch, true);
+    _preference.delete(PrefConstant.userLLMAccessKeys);
+    _preference.delete(PrefConstant.userPreference);
+    _preference.delete(PrefConstant.appPreference);
   }
 
   void updateUserPreference(UserPreference userPreference) {
@@ -60,47 +64,46 @@ class CacheDataSource {
         PrefConstant.userPreference, jsonEncode(userPreference.toJson()));
   }
 
-  Future<Chat>? getChatPreference() async {
+  Future<Chat?> getChatPreference() async {
     final data = await _preference.read(PrefConstant.chatPreference);
     if (data == null) return data;
     final json = jsonDecode(data) as Map<String, dynamic>;
-    return Chat.fromJson(json);
+    return Future.value(Chat.fromJson(json));
   }
 
-  Future<AppPreference>? getAppPreference() async {
+  Future<AppPreference?> getAppPreference() async {
     final data = await _preference.read(PrefConstant.appPreference);
     if (data == null) return data;
     final json = jsonDecode(data) as Map<String, dynamic>;
-    return AppPreference.fromJson(json);
+    return Future.value(AppPreference.fromJson(json));
   }
 
-  Future<UserPreference>? getUserPreference() async {
+  Future<UserPreference?> getUserPreference() async {
     final data = await _preference.read(PrefConstant.userPreference);
     if (data == null) return data;
     final json = jsonDecode(data) as Map<String, dynamic>;
-    return UserPreference.fromJson(json);
+    return Future.value(UserPreference.fromJson(json));
   }
 
-  Future<String>? getLLMAccessKeys() {
-    return _preference.read(PrefConstant.userLLMAccessKeys) as Future<String>?;
+  Future<String?> getLLMAccessKeys() async {
+    return await _preference.read(PrefConstant.userLLMAccessKeys);
   }
 
-  Future<String>? getLLMModel() {
-    return _preference.read(PrefConstant.userLLMModel) as Future<String>?;
+  Future<String?> getLLMModel() async {
+    return await _preference.read(PrefConstant.userLLMModel);
   }
 
-  Future<String>? getLLMVendor() {
-    return _preference.read(PrefConstant.userLLMVendor) as Future<String>?;
+  Future<String?> getLLMVendor() async {
+    return await _preference.read(PrefConstant.userLLMVendor);
   }
 
-  Future<String>? getLLMCreativityLevel() {
-    return _preference.read(PrefConstant.userLLMCreativityLevel)
-        as Future<String>?;
+  Future<String?> getLLMCreativityLevel() async {
+    return await _preference.read(PrefConstant.userLLMCreativityLevel);
   }
 
   void setLLMAccessKeys(Map<String, String> accessKeys) {
-    return _preference.save(
-        PrefConstant.userLLMAccessKeys, jsonEncode(accessKeys));
+    log.d('saving access keys $accessKeys');
+    _preference.save(PrefConstant.userLLMAccessKeys, jsonEncode(accessKeys));
   }
 
   void setLLMModel(String modelId) {
@@ -116,16 +119,19 @@ class CacheDataSource {
         PrefConstant.userLLMCreativityLevel, creativityLevelId);
   }
 
-  Future<UserLLMPreference>? getUserLLMPreference() async {
+  Future<UserLLMPreference?> getUserLLMPreference() async {
+    if (!(await _preference.containsKey(PrefConstant.userLLMPreference))) {
+      return null;
+    }
     final data = await _preference.read(PrefConstant.userLLMPreference);
     if (data == null) return data;
-    log.d('preference data is available $data');
     Map<String, dynamic> preference = jsonDecode(data);
     final userLlmPreference = UserLLMPreference("1", preference["vendor"],
         preference["models"], null, preference["creativityLevelId"]);
     Map<String, String> accessKeys = Map<String, String>.from(
         preference['accessKey']
             .map((key, value) => MapEntry(key, value.toString())));
+    log.d('access keys -> $accessKeys');
     userLlmPreference.setAccessKey(accessKeys);
     return Future.value(userLlmPreference);
   }
@@ -142,5 +148,23 @@ class CacheDataSource {
   void updateAppPreference(AppPreference appPreference) {
     _preference.save(
         PrefConstant.appPreference, jsonEncode(appPreference.toJson()));
+  }
+
+  Future<List<FAQ>?> getFAQs() async {
+    final List<String>? faqList =
+        await _preference.readList(PrefConstant.appFAQs);
+    if (faqList == null) return null;
+    List<FAQ> faqs = (faqList)
+        .map(
+          (faq) => FAQ.fromJson(jsonDecode(faq)),
+        )
+        .toList();
+    return Future.value(faqs);
+  }
+
+  Future<void> saveFAQs(List<FAQ> faqs) async {
+    final faqList = faqs.map((faq) => faq.toJson()).toList();
+    _preference.saveList(
+        PrefConstant.appFAQs, faqList.map((faq) => jsonEncode(faq)).toList());
   }
 }

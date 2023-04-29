@@ -75,8 +75,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 
-  Widget _goBackField() => GestureDetector(
-        onTap: () => {
+  Widget _goBackField() => TextButton(
+        onPressed: () => {
           GoRouter.of(context)
               .pop((route) => route.settings.name == LoginPage.routeName),
         },

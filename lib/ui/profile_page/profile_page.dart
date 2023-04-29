@@ -9,7 +9,8 @@ import 'package:superpower/bloc/theme/theme_manager.dart';
 import 'package:superpower/bloc/user/user_bloc/model/user.dart';
 import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
 import 'package:superpower/bloc/user/user_bloc/user_bloc.dart';
-import 'package:superpower/data/source/cache/preference_manager.dart';
+import 'package:superpower/ui/faq_page/faq_page.dart';
+import 'package:superpower/ui/feedback_page/feedback_page.dart';
 import 'package:superpower/ui/home_page/home.dart';
 import 'package:superpower/ui/settings_page/settings_page.dart';
 import 'package:superpower/ui/web_page/web_page.dart';
@@ -19,6 +20,7 @@ import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
 import 'package:superpower/util/strings.dart';
 import 'package:superpower/util/util.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final log = Logging("Profile Page");
 
@@ -59,34 +61,18 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   @override
   void initState() {
     log.d('entering into initState()');
+    super.initState();
     retrieveUserPreference();
     retrieveUsername();
-    // PreferenceManager.readData(PrefConstant.themeMode).then((value) {
-    //   log.d('in initState() got value from pref -> $value');
-    //   if (value != null) {
-    //     setState(() {
-    //       if (value == ThemeMode.system.name) {
-    //         themeValue = system;
-    //       } else if (value == ThemeMode.light.name) {
-    //         themeValue = light;
-    //       } else {
-    //         themeValue = dark;
-    //       }
-    //     });
-    //   }
-    // });
-    super.initState();
     log.d('init state done');
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           loadProfileImage(size: 88),
           const SizedBox(height: 10),
@@ -105,6 +91,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           feedback(),
           const SizedBox(height: 2),
           contactUs(),
+          const SizedBox(height: 2),
+          faqs(),
           const SizedBox(height: 2),
           logout(),
           const SizedBox(height: 70),
@@ -137,7 +125,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         subtitle: const Text('click to add credit points'),
         trailing: Text(
           '${_userPreference.getAvailableCredits()} credits',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         onTap: () => showPointsBottomSheet(),
       ),
@@ -157,7 +145,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         dense: Profile.isTilesDensed,
         subtitle: const Text('update access keys, model and more'),
         trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-        onTap: () => {GoRouter.of(context).go(SettingPage.routeName)},
+        onTap: () => {GoRouter.of(context).push(SettingPage.routeName)},
       ),
     );
   }
@@ -172,7 +160,6 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         trailing: Focus(
           child: DropdownButton(
             elevation: 5,
-            underline: null,
             value: _userPreference.getAppTheme(),
             alignment: Alignment.center,
             icon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -186,20 +173,11 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               log.d('theme value chaged');
               setState(() {
                 themeValue = value!;
-                if (themeValue == light) {
-                  themeManager.setLightMode();
-                } else if (themeValue == dark) {
-                  themeManager.setDarkMode();
-                } else {
-                  themeManager.setSystemMode();
-                }
                 _userPreference = UserPreference(
                     themeValue, _userPreference.getAvailableCredits());
                 _userRepository
                     .loadUser(UpdateUserPreferenceEvent(_userPreference));
-                BlocProvider.of<ThemeBloc>(context).add(
-                  ThemeChanged(themeMode: themeManager.getTheme()),
-                );
+                setTheme(themeValue);
               });
             },
           ),
@@ -219,7 +197,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     return Focus(
       child: ListTile(
         leading: const Icon(
-          Icons.rate_review_rounded,
+          Icons.star_half_rounded,
         ),
         trailing: const Icon(Icons.keyboard_arrow_right_rounded),
         subtitle: Text('on the $store'),
@@ -253,15 +231,15 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     return Focus(
       child: ListTile(
         leading: const Icon(
-          Icons.feedback_rounded,
+          Icons.rate_review_rounded,
         ),
         trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-        subtitle: const Text('about the changes you want to see'),
+        subtitle: const Text('changes you want to see'),
         title: const Text(
           'Provide feedback',
           style: Profile.tilesTitleStyle,
         ),
-        onTap: () => sendEmail(),
+        onTap: () => {GoRouter.of(context).push(FeedbackPage.routeName)},
       ),
     );
   }
@@ -274,12 +252,30 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         ),
         dense: Profile.isTilesDensed,
         trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-        subtitle: const Text('to share your queries'),
+        subtitle: const Text('share your queries'),
         title: const Text(
           'Contact Us',
           style: Profile.tilesTitleStyle,
         ),
-        onTap: () => openStore(),
+        onTap: () => sendEmail(),
+      ),
+    );
+  }
+
+  Widget faqs() {
+    return Focus(
+      child: ListTile(
+        leading: const Icon(
+          Icons.feedback_rounded,
+        ),
+        dense: Profile.isTilesDensed,
+        trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+        subtitle: const Text('frequently asked questions'),
+        title: const Text(
+          FAQTitle,
+          style: Profile.tilesTitleStyle,
+        ),
+        onTap: () => {GoRouter.of(context).push(FAQsPage.routeName)},
       ),
     );
   }
@@ -389,17 +385,72 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 {
                   setState(() => {
                         _userPreference = user,
-                        themeValue = _userPreference.getAppTheme()
+                        themeValue = _userPreference.getAppTheme(),
+                        setTheme(themeValue)
                       }),
                 }
             });
   }
 
-  void sendEmail() {}
+  void sendEmail() async {
+    final Uri uri = Uri(
+      scheme: 'mailto',
+      path: developerMailId,
+      queryParameters: {'subject': '', 'body': ''},
+    );
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      // throw 'Could not launch $url';
+    }
+  }
 
   void share() {}
 
-  void openStore() {}
+  void openStore() {
+    switch (getDeviceType()) {
+      case DeviceType.android:
+        launch(googlePlayUrl);
+        break;
+      case DeviceType.macos:
+      case DeviceType.ios:
+        launch(appStoreUrl);
+        break;
+      case DeviceType.windows:
+        launch(microsoftStoreUrl);
+        break;
+      case DeviceType.fuchsia:
+      case DeviceType.web:
+      case DeviceType.linux:
+        launch(webStoreUrl);
+        break;
+    }
+  }
+
+  void launch(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      snackbar('Could not launch $url', isError: true);
+    }
+  }
 
   void showPointsBottomSheet() {}
+
+  void setTheme(String themeValue) {
+    if (themeValue == light) {
+      themeManager.setLightMode();
+    } else if (themeValue == dark) {
+      themeManager.setDarkMode();
+    } else {
+      themeManager.setSystemMode();
+    }
+    BlocProvider.of<ThemeBloc>(context).add(
+      ThemeChanged(
+        themeMode: themeManager.getTheme(),
+      ),
+    );
+  }
 }
