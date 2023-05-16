@@ -14,6 +14,8 @@ import 'package:superpower/bloc/chat/chat_repository.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/user_llm_preference.dart';
 import 'package:superpower/bloc/llm/llm_repository.dart';
+import 'package:superpower/bloc/payment/payment_bloc/model/payment.dart';
+import 'package:superpower/bloc/payment/payment_repository.dart';
 import 'package:superpower/bloc/user/user_bloc/model/user.dart';
 import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
 import 'package:superpower/bloc/user/user_repository.dart';
@@ -26,7 +28,6 @@ import 'package:superpower/data/source/remote/remote_data_source.dart';
 import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
 import 'package:superpower/util/strings.dart';
-import 'package:superpower/util/util.dart';
 
 final log = Logging('Repository');
 
@@ -37,7 +38,8 @@ class DataRepository
         CacheRepository,
         LLMRepository,
         ChatRepository,
-        AppRepository {
+        AppRepository,
+        PaymentRepository {
   late final StreamController _controller;
   static DataRepository? instance;
   String _intention = Intention.qna.name;
@@ -101,7 +103,35 @@ class DataRepository
 
   Future<void> sendQuery(String query) async {
     _remote.withThis(_intention);
-    _messages.addAll(await _remote.sendQuery(Request(query)));
+    final queryParam = <String, String>{};
+    // final UserLLMPreference userLLMPreference =
+    //     await _cache.getUserLLMPreference() ?? UserLLMPreference();
+    // final List<LLM> llms = await getLLMs();
+    String vendorName = "open_ai",
+        modelName = "text-davinci-003",
+        intention = "lets-talk",
+        creativityLevel = "0.1";
+    // for (var llm in llms) {
+    //   if (userLLMPreference.getVendor() == llm.getId()) {
+    //     vendorName = llm.getVendor();
+    //     for (var model in llm.getModel()) {
+    //       if (userLLMPreference.getModel() == model.getId()) {
+    //         modelName = model.getName();
+    //         for (var creativity in model.getCreativityLevels()) {
+    //           if (userLLMPreference.getCreativityLevel() ==
+    //               creativity.getId()) {
+    //             creativityLevel = creativity.getName();
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+    queryParam['vendor'] = vendorName;
+    queryParam['model'] = modelName;
+    queryParam['intention'] = intention;
+    queryParam['response_creativity'] = creativityLevel;
+    _messages.addAll(await _remote.sendQuery(Request(query), queryParam));
     _controller.sink.add(_messages);
   }
 
@@ -206,10 +236,11 @@ class DataRepository
 
   @override
   Future<List<LLM>> getLLMs() async {
-    List<LLM> llms = await _remote.getLLMs();
+    List<LLM>? llms = await _cache.getLLMs();
     if (llms == null || llms.isEmpty) {
-      llms = getMockLLMs();
+      llms = await _remote.getLLMs();
     }
+    _cache.saveLLMs(llms);
     return llms;
   }
 
@@ -294,5 +325,11 @@ class DataRepository
       _cache.saveFAQs(faqs);
     }
     return Future.value(faqs);
+  }
+
+  @override
+  Future<Payment> getPaymentDetails() {
+    String appId = "anuRandomTHing";
+    return _remote.getPaymentDetails(appId);
   }
 }

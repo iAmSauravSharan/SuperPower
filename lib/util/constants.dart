@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 
 const String baseUrl = "http://localhost:8184/";
+const String aiBaseUrl = "https://2uxj9741p5.execute-api.ap-south-1.amazonaws.com/Prod";
 const String authBaseUrl =
     "https://44kvrs9fch.execute-api.ap-south-1.amazonaws.com/Prod";
 
-const String version = "0.0.1";
 const String none = '';
 const String not_available = 'na';
 
@@ -32,10 +32,17 @@ class PrefConstant {
   static const String appPreference = 'appPreference';
   static const String appFAQs = 'appFAQs';
   static const String chatPreference = 'chatPreference';
+  static const String llmOptions = 'llmOptions';
   static const String userLLMVendor = 'userLLMVendor';
   static const String userLLMModel = 'userLLMModel';
   static const String userLLMCreativityLevel = 'userLLMCreativityLevel';
   static const String userLLMAccessKeys = 'userLLMAccessKeys';
+}
+
+class PostType {
+  static const int image = 1;
+  static const int video = 2;
+  static const int text = 3;
 }
 
 class MessageType {
@@ -74,7 +81,7 @@ class PathFor {
 }
 
 class Profile {
-  static const Color tilesColor = Color.fromARGB(255, 232, 243, 249);
+  static const Color tilesColor = Color.fromARGB(255, 245, 249, 252);
   static const Color iconColor = Colors.black;
   static const bool isTilesDensed = true;
   static const TextStyle tilesTitleStyle = TextStyle(fontSize: 17);

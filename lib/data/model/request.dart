@@ -5,7 +5,7 @@ class Request {
 
   String getQuery() => _query;
 
-  Map<String, dynamic> toJson() => {'query': _query};
+  Map<String, dynamic> toJson() => {'prompt': _query};
 
-  Request.fromJson(Map<String, dynamic> json) : _query = json['query'];
+  Request.fromJson(Map<String, dynamic> json) : _query = json['prompt'];
 }

@@ -18,6 +18,7 @@ final darkTheme = ThemeData(
     onPrimary: Colors.white,
     shadow: Colors.white60,
     secondary: Colors.blueAccent,
+    background: Color.fromARGB(255, 18, 18, 18),
   ),
   inputDecorationTheme: const InputDecorationTheme(
     fillColor: Color.fromARGB(255, 67, 67, 67),
@@ -216,6 +217,7 @@ final lightTheme = ThemeData(
     onPrimary: Color.fromARGB(255, 255, 255, 255),
     shadow: Color.fromARGB(153, 0, 0, 0),
     secondary: Colors.blueAccent,
+    background: Color.fromARGB(255, 194, 193, 193),
   ),
   inputDecorationTheme: const InputDecorationTheme(
     fillColor: Color.fromARGB(255, 233, 233, 233),
@@ -263,7 +265,7 @@ final lightTheme = ThemeData(
     color: Color.fromARGB(179, 30, 30, 30),
   ),
   listTileTheme: const ListTileThemeData(
-    tileColor: Color.fromARGB(137, 255, 255, 255),
+    tileColor: Color.fromARGB(255, 255, 255, 255),
     textColor: Color.fromARGB(255, 35, 35, 35),
     visualDensity: VisualDensity.comfortable,
     dense: true,

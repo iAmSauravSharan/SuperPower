@@ -21,15 +21,25 @@ class LLMModel extends Equatable {
   List<Object?> get props => [_isSelected];
 
   Map<String, dynamic> toJson() => {
-        'name': _name,
         'id': _id,
+        'name': _name,
         'isSelected': _isSelected,
         'creativityLevel': _creativityLevel
+            .map((creativityLevel) => creativityLevel.toJson())
+            .toList(),
       };
 
-  LLMModel.fromJson(Map<String, dynamic> json)
-      : _name = json['name'],
-        _creativityLevel = json['creativityLevel'],
-        _id = json['id'],
-        _isSelected = json['isSelected'];
+  factory LLMModel.fromJson(Map<String, dynamic> json) {
+    var creativityJson = json['creativityLevel'] as List<dynamic>;
+    var creativityLevel = creativityJson
+        .map((creativity) => LLMCreativity.fromJson(creativity))
+        .toList();
+
+    return LLMModel(
+      json['id'],
+      json['name'],
+      creativityLevel,
+      json['isSelected'],
+    );
+  }
 }

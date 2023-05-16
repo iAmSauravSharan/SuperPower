@@ -219,6 +219,7 @@ class _LoginPageState extends State<LoginPage> {
         .authenticate(
             LoginEvent(_emailController.text, _passwordController.text))
         .then((value) => {
+              log.d("logged in successful..."),
               saveTokens(value),
               _repository.setLoggedInStatus(true),
               Navigator.of(context).pop(),
@@ -226,7 +227,11 @@ class _LoginPageState extends State<LoginPage> {
                   .pop((route) => route.settings.name == HomePage.routeName),
               GoRouter.of(context).go(HomePage.routeName),
             })
-        .catchError((error) => {Navigator.of(context).pop()});
+        .catchError((error) => {
+          log.d("logged in failed...$error"),
+          snackbar('Something went wrong', isError: true),
+          Navigator.of(context).pop(),
+          });
 
     log.d("logged in finish.............");
   }

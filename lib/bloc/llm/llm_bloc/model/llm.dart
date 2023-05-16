@@ -31,16 +31,23 @@ class LLM {
 
   Map<String, dynamic> toJson() => {
         'vendor': _vendor,
-        'models': _models,
+        'models': _models.map((model) => model.toJson()).toList(),
         'id': _id,
         "isSelected": _isSelected,
         'accessKey': _accessKey
       };
 
-  LLM.fromJson(Map<String, dynamic> json)
-      : _vendor = json['vendor'],
-        _models = json['models'],
-        _id = json['id'],
-        _isSelected = json['isSelected'],
-        _accessKey = json['accessKey'];
+  factory LLM.fromJson(Map<String, dynamic> json) {
+    var modelsJson = json['models'] as List<dynamic>;
+    var models =
+        modelsJson.map((modelJson) => LLMModel.fromJson(modelJson)).toList();
+
+    return LLM(
+      json['id'],
+      json['vendor'],
+      models,
+      json['accessKey'],
+      json['isSelected'],
+    );
+  }
 }

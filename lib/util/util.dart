@@ -1,14 +1,14 @@
 import 'dart:io';
-import 'dart:math';
-import 'dart:ui';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm_creativity.dart';
-import 'package:superpower/bloc/llm/llm_bloc/model/llm_data.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm_model.dart';
+import 'package:superpower/util/config.dart';
 import 'package:superpower/util/constants.dart';
 import 'package:superpower/util/logging.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final log = Logging('Util');
 
@@ -30,6 +30,44 @@ String getStoreName() {
       return "Windows Store";
     }
     return "App Store";
+  }
+}
+
+void sendEmail([String subject = "", String body = ""]) async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  if (subject.isEmpty) {
+    subject = "contact -";
+  }
+  if (body.isEmpty) {
+    String appName = packageInfo.appName;
+    String version = packageInfo.version;
+    String buildNumber = packageInfo.buildNumber;
+    body = """
+\n\n\n\n- Device info
+App name: $appName
+App version: $version
+Build number: $buildNumber""";
+  }
+  final Uri uri = Uri(
+    scheme: 'mailto',
+    path: developerMailId,
+    query: 'subject=$subject&body=$body',
+  );
+
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri);
+  } else {
+    snackbar('Unable to launch email service', isError: true);
+  }
+}
+
+void launchWebpageWith(String url,
+    [LaunchMode mode = LaunchMode.externalApplication]) async {
+  final Uri uri = Uri.parse(url);
+  if (await canLaunchUrl(uri)) {
+    launchUrl(uri, mode: mode);
+  } else {
+    snackbar('Could not launch $url', isError: true);
   }
 }
 
@@ -78,9 +116,10 @@ List<LLM> getMockLLMs() {
   creativityLevels.add(LLMCreativity("5", "highest", false));
 
   final openAiModels = <LLMModel>[];
-  openAiModels.add(LLMModel("1", "text_da_vinci", creativityLevels, false));
-  openAiModels.add(LLMModel("2", "chat gpt", creativityLevels, false));
-  openAiModels.add(LLMModel("3", "dall.3", creativityLevels, false));
+  openAiModels.add(LLMModel("1", "text-davinci-003", creativityLevels, false));
+  openAiModels.add(LLMModel("2", "gpt-3.5-turbo", creativityLevels, false));
+  openAiModels.add(LLMModel("3", "gpt-4", creativityLevels, false));
+  openAiModels.add(LLMModel("4", "dall.3", creativityLevels, false));
 
   final claudeModels = <LLMModel>[];
   claudeModels.add(LLMModel("1", "Claude", creativityLevels, false));

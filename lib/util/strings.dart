@@ -3,10 +3,14 @@ const String SUCCESS = "Success";
 
 const String FeedbackTitle = "Feedback";
 const String FAQTitle = "FAQ";
+const String PaymentTitle = "Payment";
 const String Submit = "Submit";
+const String Subscribe = "Subscribe";
 const String RateYourExperience = "Rate your experience with our product";
 const String EnterYourFeedback = "Enter your feedback..";
 const String FeedbackSubmittedSuccessfully = "Feedback Submitted Successfully";
+const String AnyFurtherQuestions = "If you have any further questions";
+const String ContactUsText = "contact us";
 const String FeedbackSubmitionError =
     "Error submitting feedback. Please try again later.";
 

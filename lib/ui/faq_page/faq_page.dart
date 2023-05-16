@@ -1,12 +1,15 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:superpower/bloc/app/app_bloc/app_bloc.dart';
 import 'package:superpower/bloc/app/app_bloc/model/faq.dart';
 import 'package:superpower/shared/widgets/page_loading.dart';
+import 'package:superpower/ui/faq_page/faq_list.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/logging.dart';
 import 'package:superpower/util/strings.dart';
+import 'package:superpower/util/util.dart';
 
 final log = Logging('FAQsPage');
 
@@ -65,31 +68,42 @@ class _FAQWidgetState extends State<FAQWidget> {
   Widget build(BuildContext context) {
     return !dataFetched
         ? const PageLoading()
-        : Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              itemCount: faqs.length,
-              itemBuilder: (context, index) {
-                final faq = faqs[index];
-                final question = faq.getTitle();
-                final answer = faq.getContent();
-                return ExpansionTile(
-                  title: Text(
-                    question,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        answer,
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                  child: FaqList(faqs),
+                ),
+              ),
+              const ContactUs()
+            ],
           );
+  }
+}
+
+class ContactUs extends StatelessWidget {
+  const ContactUs({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          text: '$AnyFurtherQuestions, ',
+          style: Theme.of(context).textTheme.bodySmall,
+          children: [
+            TextSpan(
+              recognizer: TapGestureRecognizer()..onTap = () => sendEmail(),
+              text: ContactUsText,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

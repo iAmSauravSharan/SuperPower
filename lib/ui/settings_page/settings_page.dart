@@ -169,7 +169,7 @@ class _SettingWidgetState extends State<SettingWidget> {
           },
         ),
       ),
-      subtitle: const Text('to change model'),
+      subtitle: const Text('which suits your needs best'),
       title: const Text(
         'Select vendor',
         style: Profile.tilesTitleStyle,
@@ -223,7 +223,8 @@ class _SettingWidgetState extends State<SettingWidget> {
           },
         ),
       ),
-      subtitle: const Text('to change model'),
+      subtitle:
+          const Text('to get more powerful response'),
       title: const Text(
         'Select model',
         style: Profile.tilesTitleStyle,
@@ -273,9 +274,9 @@ class _SettingWidgetState extends State<SettingWidget> {
           },
         ),
       ),
-      subtitle: const Text('to change the creativity'),
+      subtitle: const Text('lower creativity means more predictable output'),
       title: const Text(
-        'Select creativity level',
+        'Select creativity',
         style: Profile.tilesTitleStyle,
       ),
     );

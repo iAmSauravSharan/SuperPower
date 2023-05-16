@@ -2,6 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:superpower/bloc/auth/auth_bloc/authentication_bloc.dart';
 import 'package:superpower/bloc/theme/theme_bloc/theme_bloc.dart';
 import 'package:superpower/bloc/theme/theme_constants.dart';
@@ -12,6 +14,7 @@ import 'package:superpower/bloc/user/user_bloc/user_bloc.dart';
 import 'package:superpower/ui/faq_page/faq_page.dart';
 import 'package:superpower/ui/feedback_page/feedback_page.dart';
 import 'package:superpower/ui/home_page/home.dart';
+import 'package:superpower/ui/payment_page/payment_page.dart';
 import 'package:superpower/ui/settings_page/settings_page.dart';
 import 'package:superpower/ui/web_page/web_page.dart';
 import 'package:superpower/util/app_state.dart';
@@ -21,6 +24,7 @@ import 'package:superpower/util/logging.dart';
 import 'package:superpower/util/strings.dart';
 import 'package:superpower/util/util.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 final log = Logging("Profile Page");
 
@@ -57,6 +61,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   late ThemeManager themeManager = AppState.themeManager;
   final _authentication = AppState.authenticationBloc;
   final _userRepository = AppState.userBloc;
+  String appVersion = "";
+  String appBuild = "";
 
   @override
   void initState() {
@@ -64,6 +70,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     super.initState();
     retrieveUserPreference();
     retrieveUsername();
+    retrieveAppInfo();
     log.d('init state done');
   }
 
@@ -127,7 +134,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           '${_userPreference.getAvailableCredits()} credits',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        onTap: () => showPointsBottomSheet(),
+        onTap: () => launchPaymentPage(),
       ),
     );
   }
@@ -316,7 +323,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           children: [
             TextSpan(
               recognizer: TapGestureRecognizer()
-                ..onTap = () => launchWebPageFor(Path.terms_of_usage),
+                ..onTap = () =>
+                    launchWebpageWith('https://google.com', LaunchMode.inAppWebView),
               text: TERMS_AND_CONDITIONS,
               style: const TextStyle(
                 decoration: TextDecoration.underline,
@@ -333,7 +341,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
             ),
             TextSpan(
               recognizer: TapGestureRecognizer()
-                ..onTap = () => launchWebPageFor(Path.privacy_policy),
+                ..onTap = () =>
+                    launchWebpageWith('https://google.com', LaunchMode.inAppWebView),
               text: PRIVACY_POLICY,
               style: const TextStyle(
                 decoration: TextDecoration.underline,
@@ -348,22 +357,13 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   }
 
   Widget versionInfo() {
-    return const Center(
+    return Center(
       child: Text(
-        'v$version',
+        '$appVersion - $appBuild',
         style: const TextStyle(
           fontSize: 11,
           color: Color.fromARGB(255, 177, 177, 177),
         ),
-      ),
-    );
-  }
-
-  void launchWebPageFor(Path path) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: ((context) => WebPage(path: path)),
       ),
     );
   }
@@ -392,52 +392,33 @@ class _ProfileWidgetState extends State<ProfileWidget> {
             });
   }
 
-  void sendEmail() async {
-    final Uri uri = Uri(
-      scheme: 'mailto',
-      path: developerMailId,
-      queryParameters: {'subject': '', 'body': ''},
-    );
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      // throw 'Could not launch $url';
-    }
+  void share() {
+    Share.share('Hey! I found this amazing app.');
   }
-
-  void share() {}
 
   void openStore() {
     switch (getDeviceType()) {
       case DeviceType.android:
-        launch(googlePlayUrl);
+        launchWebpageWith(googlePlayUrl);
         break;
       case DeviceType.macos:
       case DeviceType.ios:
-        launch(appStoreUrl);
+        launchWebpageWith(appStoreUrl);
         break;
       case DeviceType.windows:
-        launch(microsoftStoreUrl);
+        launchWebpageWith(microsoftStoreUrl);
         break;
       case DeviceType.fuchsia:
       case DeviceType.web:
       case DeviceType.linux:
-        launch(webStoreUrl);
+        launchWebpageWith(webStoreUrl);
         break;
     }
   }
 
-  void launch(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      snackbar('Could not launch $url', isError: true);
-    }
+  void launchPaymentPage() {
+    GoRouter.of(context).push(PaymentPage.routeName);
   }
-
-  void showPointsBottomSheet() {}
 
   void setTheme(String themeValue) {
     if (themeValue == light) {
@@ -452,5 +433,13 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         themeMode: themeManager.getTheme(),
       ),
     );
+  }
+
+  void retrieveAppInfo() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      appVersion = packageInfo.version;
+      appBuild = packageInfo.buildNumber;
+    });
   }
 }

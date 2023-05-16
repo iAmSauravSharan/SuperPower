@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:superpower/bloc/app/app_bloc/model/app_preference.dart';
 import 'package:superpower/bloc/app/app_bloc/model/faq.dart';
 import 'package:superpower/bloc/chat/chat_bloc/model/chat.dart';
+import 'package:superpower/bloc/llm/llm_bloc/model/llm.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/user_llm_preference.dart';
 import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
 import 'package:superpower/data/source/cache/preference_manager.dart';
@@ -166,5 +168,23 @@ class CacheDataSource {
     final faqList = faqs.map((faq) => faq.toJson()).toList();
     _preference.saveList(
         PrefConstant.appFAQs, faqList.map((faq) => jsonEncode(faq)).toList());
+  }
+
+  Future<List<LLM>?> getLLMs() async {
+    final List<String>? llmList =
+        await _preference.readList(PrefConstant.llmOptions);
+    if (llmList == null) return null;
+    List<LLM> llms = (llmList as List<String>)
+        .map(
+          (llm) => LLM.fromJson(jsonDecode(llm)),
+        )
+        .toList();
+    return Future.value(llms);
+  }
+
+  Future<void> saveLLMs(List<LLM> llms) async {
+    final llmList = llms.map((llm) => llm.toJson()).toList();
+    _preference.saveList(PrefConstant.llmOptions,
+        llmList.map((llm) => jsonEncode(llm)).toList());
   }
 }

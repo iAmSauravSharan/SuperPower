@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:http/http.dart' as http;
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:superpower/bloc/app/app_bloc/model/app_preference.dart';
 import 'package:superpower/bloc/app/app_bloc/model/faq.dart';
@@ -13,13 +11,14 @@ import 'package:superpower/bloc/auth/auth_bloc/model/verify_code.dart';
 import 'package:superpower/bloc/chat/chat_bloc/model/chat.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/llm.dart';
 import 'package:superpower/bloc/llm/llm_bloc/model/user_llm_preference.dart';
+import 'package:superpower/bloc/payment/payment_bloc/model/payment.dart';
+import 'package:superpower/bloc/payment/payment_bloc/model/subscription.dart';
 import 'package:superpower/bloc/user/user_bloc/model/user.dart';
 import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
 import 'package:superpower/data/model/messages.dart';
 import 'package:superpower/data/model/options.dart';
 import 'package:superpower/data/model/request.dart';
 import 'package:superpower/data/source/remote/interceptors/append_headers_interceptor.dart';
-import 'package:superpower/data/source/remote/interceptors/expired_token_interceptor.dart';
 import 'package:superpower/data/source/remote/interceptors/logging_interceptor.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/constants.dart';
@@ -38,7 +37,7 @@ class RemoteDataSource {
 
   RemoteDataSource() {
     http = InterceptedHttp.build(
-        interceptors: [LoggingInterceptor(), AppendHeadersInterceptor()]);
+        interceptors: [AppendHeadersInterceptor(), LoggingInterceptor()]);
   }
 
   Future<List<Messages>> getGreetings() async {
@@ -55,11 +54,15 @@ class RemoteDataSource {
     return messages;
   }
 
-  Future<List<Messages>> sendQuery(Request request) async {
+  Future<List<Messages>> sendQuery(
+      Request request, Map<String, String> queryParam) async {
     List<Messages> messages = [];
-    final String url = '$baseUrl$_intention?prompt=${request.getQuery()}';
-    log.d("in sendQuery() - url is -> $url");
-    final response = await http.get(Uri.parse(url));
+    const String url = '$aiBaseUrl/ask';
+    final response = await http.post(
+      Uri.parse(url),
+      params: queryParam,
+      body: request.toJson().toString(),
+    );
     if (response.statusCode == 200) {
       log.d("in sendQuery - response is -> ${response.body}");
       messages.add(Messages.fromJson(jsonDecode(response.body)));
@@ -245,12 +248,34 @@ class RemoteDataSource {
     return Future.delayed(const Duration(milliseconds: 300), () => {});
   }
 
+  Future<Payment> getPaymentDetails(String appId) {
+    const monthlySubscriptionBenefits = [
+      "Unlimited Chat History",
+      "Token limit upto 32k",
+      "Access to GPT4 and Bard LLM",
+    ];
+    const annualSubscriptionBenefits = [
+      "Everything included in monthly",
+      "Token limit upto 64k",
+      "Unlimited Chat profiles",
+    ];
+    const subscriptions = [
+      Subscription(1, "Monthly", "\$34", "In Annual, you get 2 months free",
+          monthlySubscriptionBenefits),
+      Subscription(1, "Annual", "\$29/month", "", annualSubscriptionBenefits),
+    ];
+    const paymentDetails = Payment("Unlock all features",
+        "get daily updates, crafted for you", subscriptions);
+    return Future.delayed(
+        const Duration(milliseconds: 300), () => paymentDetails);
+  }
+
   Future<List<FAQ>> getFAQs() {
     final faqs = <FAQ>[];
-    faqs.add(const FAQ("How can I use this app?", 
-    "You can use this app to ask your queries at different level. You could ask AI to solve your maths problem, your day to day coding problems, as well as you could ask for health related tips."));
-    faqs.add(const FAQ("What are different mode of Payment is supported?", 
-    "We support in app payments from google play store, apple app store as well as custom payments mode with credit cards, debit cards. internet banking and UPIs"));
+    faqs.add(const FAQ("How can I use this app?",
+        "You can use this app to ask your queries at different level. You could ask AI to solve your maths problem, your day to day coding problems, as well as you could ask for health related tips."));
+    faqs.add(const FAQ("What are different mode of Payment is supported?",
+        "We support in app payments from google play store, apple app store as well as custom payments mode with credit cards, debit cards. internet banking and UPIs"));
     return Future.delayed(const Duration(microseconds: 300), () => faqs);
   }
 }
