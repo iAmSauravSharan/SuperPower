@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
-import 'package:superpower/data/model/messages.dart';
 import 'package:superpower/data/data_repository.dart';
-import 'package:superpower/main.dart';
+import 'package:superpower/data/model/messages.dart';
 import 'package:superpower/ui/chat_page/chat_style.dart';
 import 'package:superpower/ui/chat_page/options.dart';
 import 'package:superpower/util/app_state.dart';

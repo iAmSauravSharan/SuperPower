@@ -6,7 +6,7 @@ import 'package:superpower/ui/authentication_page/login_page.dart';
 import 'package:superpower/ui/authentication_page/reset_password_page.dart';
 import 'package:superpower/ui/authentication_page/signup_page.dart';
 import 'package:superpower/ui/authentication_page/verify_code_page.dart';
-import 'package:superpower/ui/chat_page/chat.dart';
+import 'package:superpower/ui/chat_page/chat_page.dart';
 import 'package:superpower/ui/error_page/error_page.dart';
 import 'package:superpower/ui/faq_page/faq_page.dart';
 import 'package:superpower/ui/feedback_page/feedback_page.dart';

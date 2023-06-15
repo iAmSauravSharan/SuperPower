@@ -223,8 +223,7 @@ class _SettingWidgetState extends State<SettingWidget> {
           },
         ),
       ),
-      subtitle:
-          const Text('to get more powerful response'),
+      subtitle: const Text('to get more powerful response'),
       title: const Text(
         'Select model',
         style: Profile.tilesTitleStyle,

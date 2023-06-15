@@ -3,7 +3,8 @@
 import 'package:flutter/material.dart';
 
 const String baseUrl = "http://localhost:8184/";
-const String aiBaseUrl = "https://2uxj9741p5.execute-api.ap-south-1.amazonaws.com/Prod";
+const String aiBaseUrl =
+    "https://2uxj9741p5.execute-api.ap-south-1.amazonaws.com/Prod";
 const String authBaseUrl =
     "https://44kvrs9fch.execute-api.ap-south-1.amazonaws.com/Prod";
 
@@ -39,9 +40,10 @@ class PrefConstant {
   static const String userLLMAccessKeys = 'userLLMAccessKeys';
 }
 
-class PostType {
+class ContentType {
   static const int image = 1;
   static const int video = 2;
+  static const int audio = 2;
   static const int text = 3;
 }
 

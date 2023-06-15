@@ -28,7 +28,7 @@ class _PostItemState extends State<PostItem> {
   @override
   void initState() {
     super.initState();
-    if (widget.post.contentType == PostType.video) {
+    if (widget.post.contentType == ContentType.video) {
       _controller = VideoPlayerController.network(widget.post.content)
         ..initialize().then((_) {
           setState(() {});
@@ -88,9 +88,9 @@ class _PostItemState extends State<PostItem> {
                   ),
                 ),
               ),
-              widget.post.contentType == PostType.image
+              widget.post.contentType == ContentType.image
                   ? Image.network(widget.post.content)
-                  : widget.post.contentType == PostType.video
+                  : widget.post.contentType == ContentType.video
                       ? SizedBox(
                           height: 180,
                           child: AspectRatio(
