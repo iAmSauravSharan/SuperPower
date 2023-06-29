@@ -7,7 +7,7 @@ import 'package:superpower/ui/authentication_page/auth_page.dart';
 import 'package:superpower/ui/authentication_page/forgot_password_page.dart';
 import 'package:superpower/ui/authentication_page/login_page.dart';
 import 'package:superpower/ui/authentication_page/widgets/resend_code_button.dart';
-import 'package:superpower/ui/home_page/home.dart';
+import 'package:superpower/ui/home_page/home_page.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
 import 'package:superpower/util/constants.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:superpower/ui/home_page/home.dart';
+import 'package:superpower/ui/home_page/home_page.dart';
 
 class ErrorPage extends StatelessWidget {
   const ErrorPage({super.key});

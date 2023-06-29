@@ -13,7 +13,7 @@ import 'package:superpower/bloc/user/user_bloc/model/user_preference.dart';
 import 'package:superpower/bloc/user/user_bloc/user_bloc.dart';
 import 'package:superpower/ui/faq_page/faq_page.dart';
 import 'package:superpower/ui/feedback_page/feedback_page.dart';
-import 'package:superpower/ui/home_page/home.dart';
+import 'package:superpower/ui/home_page/home_page.dart';
 import 'package:superpower/ui/payment_page/payment_page.dart';
 import 'package:superpower/ui/settings_page/settings_page.dart';
 import 'package:superpower/ui/web_page/web_page.dart';

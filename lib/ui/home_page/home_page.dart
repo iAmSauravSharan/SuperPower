@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:superpower/shared/widgets/page_loading.dart';
 import 'package:superpower/ui/chat_page/chat_page.dart';
-import 'package:superpower/ui/home_page/option.dart';
+import 'package:superpower/ui/home_page/option_widget.dart';
 import 'package:superpower/ui/profile_page/profile_page.dart';
 import 'package:superpower/util/app_state.dart';
 import 'package:superpower/util/config.dart';
